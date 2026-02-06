@@ -24,5 +24,19 @@ archives:
 checksum:
   name_template: "terraform-provider-awsnomicon_{{ .Version }}_SHA256SUMS"
 
+signs:
+  - artifacts: checksum
+    cmd: gpg
+    args:
+      - "--batch"
+      - "--yes"
+      - "--armor"
+      - "--detach-sign"
+      - "--local-user"
+      - "{{ .Env.GPG_FINGERPRINT }}"
+      - "-o"
+      - "${signature}"
+      - "${artifact}"
+
 release:
   prerelease: auto
