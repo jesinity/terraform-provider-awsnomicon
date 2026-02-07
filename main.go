@@ -5,13 +5,13 @@ import (
 	"log"
 	"os"
 
-	"github.com/jesinity/terraform-provider-cloudomen/internal/provider"
+	"github.com/jesinity/terraform-provider-sigil/internal/provider"
 	"github.com/hashicorp/terraform-plugin-framework/providerserver"
 )
 
 func main() {
 	opts := providerserver.ServeOpts{
-		Address: "registry.terraform.io/jesinity/cloudomen",
+		Address: "registry.terraform.io/jesinity/sigil",
 	}
 
 	if err := providerserver.Serve(context.Background(), provider.New("dev"), opts); err != nil {
