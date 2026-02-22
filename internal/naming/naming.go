@@ -1,14 +1,22 @@
 package naming
 
 import (
+	_ "embed"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net"
 	"regexp"
+	"sort"
 	"strings"
+	"sync"
+	"unicode"
 )
 
 const (
+	CloudAWS   = "aws"
+	CloudAzure = "azure"
+
 	StyleDashed       = "dashed"
 	StyleUnderscore   = "underscore"
 	StyleStraight     = "straight"
@@ -19,7 +27,33 @@ const (
 
 var (
 	wordRe = regexp.MustCompile(`[A-Za-z0-9]+`)
+
+	//go:embed azure_caf_resource_definition.json
+	azureCAFResourceDefinitionJSON []byte
+
+	azureCAFDefaultsOnce sync.Once
+	azureCAFDefaults     CloudDefaults
+	azureCAFDefaultsErr  error
 )
+
+type CloudDefaults struct {
+	RegionMap              map[string]string
+	ResourceAcronyms       map[string]string
+	ResourceStyleOverrides map[string][]string
+	ResourceConstraints    map[string]ResourceConstraint
+	RegionalResources      map[string]bool
+}
+
+type azureCAFResourceDefinition struct {
+	Name            string `json:"name"`
+	MinLength       int    `json:"min_length"`
+	MaxLength       int    `json:"max_length"`
+	ValidationRegex string `json:"validation_regex"`
+	Scope           string `json:"scope"`
+	Slug            string `json:"slug"`
+	Dashes          bool   `json:"dashes"`
+	Lowercase       bool   `json:"lowercase"`
+}
 
 type Config struct {
 	OrgPrefix                        string
@@ -64,6 +98,44 @@ type ResourceConstraint struct {
 	ForbiddenSubstrings []string
 	DisallowIPAddress   bool
 	CaseInsensitive     bool
+}
+
+func DefaultCloud() string {
+	return CloudAWS
+}
+
+func NormalizeCloud(cloud string) string {
+	normalized := strings.ToLower(strings.TrimSpace(cloud))
+	if normalized == "" {
+		return DefaultCloud()
+	}
+	return normalized
+}
+
+func IsSupportedCloud(cloud string) bool {
+	switch NormalizeCloud(cloud) {
+	case CloudAWS, CloudAzure:
+		return true
+	default:
+		return false
+	}
+}
+
+func DefaultCloudDefaults(cloud string) (CloudDefaults, error) {
+	switch NormalizeCloud(cloud) {
+	case CloudAWS:
+		return CloudDefaults{
+			RegionMap:              DefaultRegionMap(),
+			ResourceAcronyms:       DefaultResourceAcronyms(),
+			ResourceStyleOverrides: DefaultResourceStyleOverrides(),
+			ResourceConstraints:    DefaultResourceConstraints(),
+			RegionalResources:      DefaultRegionalResources(),
+		}, nil
+	case CloudAzure:
+		return defaultAzureCloudDefaults()
+	default:
+		return CloudDefaults{}, fmt.Errorf("unsupported cloud %q", cloud)
+	}
 }
 
 func DefaultRecipe() []string {
@@ -360,10 +432,120 @@ func DefaultResourceConstraints() map[string]ResourceConstraint {
 	}
 }
 
+func defaultAzureCloudDefaults() (CloudDefaults, error) {
+	azureCAFDefaultsOnce.Do(func() {
+		var definitions []azureCAFResourceDefinition
+		if err := json.Unmarshal(azureCAFResourceDefinitionJSON, &definitions); err != nil {
+			azureCAFDefaultsErr = fmt.Errorf("decode Azure CAF resource definitions: %w", err)
+			return
+		}
+
+		acronyms := make(map[string]string, len(definitions))
+		styleOverrides := make(map[string][]string, len(definitions))
+		constraints := make(map[string]ResourceConstraint, len(definitions))
+		regionalResources := make(map[string]bool, len(definitions))
+
+		for _, definition := range definitions {
+			name := strings.ToLower(strings.TrimSpace(definition.Name))
+			if name == "" {
+				continue
+			}
+
+			acronyms[name] = azureCAFResourceAcronym(definition.Slug, definition.Name)
+			styleOverrides[name] = azureCAFStyleOverrides(definition.Lowercase, definition.Dashes)
+			regionalResources[name] = azureCAFIsRegionalScope(definition.Scope)
+			constraints[name] = azureCAFConstraint(definition)
+		}
+
+		azureCAFDefaults = CloudDefaults{
+			RegionMap:              map[string]string{},
+			ResourceAcronyms:       acronyms,
+			ResourceStyleOverrides: styleOverrides,
+			ResourceConstraints:    constraints,
+			RegionalResources:      regionalResources,
+		}
+	})
+	if azureCAFDefaultsErr != nil {
+		return CloudDefaults{}, azureCAFDefaultsErr
+	}
+
+	return CloudDefaults{
+		RegionMap:              copyStringMap(azureCAFDefaults.RegionMap),
+		ResourceAcronyms:       copyStringMap(azureCAFDefaults.ResourceAcronyms),
+		ResourceStyleOverrides: copyStringSliceMap(azureCAFDefaults.ResourceStyleOverrides),
+		ResourceConstraints:    copyConstraintMap(azureCAFDefaults.ResourceConstraints),
+		RegionalResources:      copyBoolMap(azureCAFDefaults.RegionalResources),
+	}, nil
+}
+
+func azureCAFConstraint(definition azureCAFResourceDefinition) ResourceConstraint {
+	constraint := ResourceConstraint{
+		MinLen: definition.MinLength,
+		MaxLen: definition.MaxLength,
+	}
+
+	regexValue := strings.TrimSpace(definition.ValidationRegex)
+	regexValue = strings.Trim(regexValue, `"`)
+	if regexValue == "" {
+		return constraint
+	}
+
+	constraint.PatternDescription = fmt.Sprintf("must match Azure CAF regex %q", regexValue)
+	pattern, err := regexp.Compile(regexValue)
+	if err != nil {
+		return constraint
+	}
+	constraint.Pattern = pattern
+	return constraint
+}
+
+func azureCAFStyleOverrides(lowercase, dashes bool) []string {
+	styles := []string{}
+	if lowercase {
+		if dashes {
+			styles = append(styles, StyleDashed)
+		}
+		styles = append(styles, StyleStraight)
+		return styles
+	}
+
+	if dashes {
+		styles = append(styles, StyleDashed, StylePascalDashed)
+	}
+	styles = append(styles, StylePascal, StyleCamel, StyleStraight)
+	return styles
+}
+
+func azureCAFResourceAcronym(slug, name string) string {
+	base := toLowerAlnum(slug)
+	fallback := toLowerAlnum(name)
+	for len(base) < 4 && fallback != "" {
+		base += fallback[:1]
+		fallback = fallback[1:]
+	}
+	for len(base) < 4 {
+		base += "x"
+	}
+	return base[:4]
+}
+
+func azureCAFIsRegionalScope(scope string) bool {
+	switch strings.ToLower(strings.TrimSpace(scope)) {
+	case "resourcegroup", "region", "location", "parent":
+		return true
+	default:
+		return false
+	}
+}
+
 func BuildName(cfg Config, in BuildInput) (BuildResult, error) {
 	regionCode := strings.TrimSpace(cfg.RegionShortCode)
-	if regionCode == "" && strings.TrimSpace(cfg.Region) != "" {
-		regionCode = cfg.RegionMap[strings.TrimSpace(cfg.Region)]
+	region := strings.TrimSpace(cfg.Region)
+	if regionCode == "" && region != "" {
+		regionCode = strings.TrimSpace(cfg.RegionMap[region])
+		if regionCode == "" {
+			regionCode = region
+		}
 	}
 
 	resourceKey := strings.ToLower(strings.TrimSpace(in.Resource))
@@ -734,4 +916,54 @@ func containsString(list []string, value string) bool {
 		}
 	}
 	return false
+}
+
+func toLowerAlnum(value string) string {
+	var b strings.Builder
+	b.Grow(len(value))
+	for _, r := range value {
+		if unicode.IsLetter(r) || unicode.IsDigit(r) {
+			b.WriteRune(unicode.ToLower(r))
+		}
+	}
+	return b.String()
+}
+
+func copyStringMap(in map[string]string) map[string]string {
+	out := make(map[string]string, len(in))
+	for key, value := range in {
+		out[key] = value
+	}
+	return out
+}
+
+func copyBoolMap(in map[string]bool) map[string]bool {
+	out := make(map[string]bool, len(in))
+	for key, value := range in {
+		out[key] = value
+	}
+	return out
+}
+
+func copyStringSliceMap(in map[string][]string) map[string][]string {
+	out := make(map[string][]string, len(in))
+	for key, value := range in {
+		cloned := make([]string, len(value))
+		copy(cloned, value)
+		out[key] = cloned
+	}
+	return out
+}
+
+func copyConstraintMap(in map[string]ResourceConstraint) map[string]ResourceConstraint {
+	out := make(map[string]ResourceConstraint, len(in))
+	keys := make([]string, 0, len(in))
+	for key := range in {
+		keys = append(keys, key)
+	}
+	sort.Strings(keys)
+	for _, key := range keys {
+		out[key] = in[key]
+	}
+	return out
 }

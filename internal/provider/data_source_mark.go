@@ -160,6 +160,7 @@ func (d *MarkDataSource) Read(ctx context.Context, req datasource.ReadRequest, r
 		StylePriority:                    d.providerData.StylePriority,
 		ResourceAcronyms:                 d.providerData.ResourceAcronyms,
 		ResourceStyleOverrides:           d.providerData.ResourceStyleOverrides,
+		ResourceConstraints:              d.providerData.ResourceConstraints,
 		IgnoreRegionForRegionalResources: d.providerData.IgnoreRegionForRegionalResources,
 		RegionalResources:                d.providerData.RegionalResources,
 	}, naming.BuildInput{

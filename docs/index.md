@@ -1,6 +1,6 @@
 # sigil
 
-Terraform provider for AWS naming conventions and consistent resource naming. Today it's AWS-first, with room to expand to other clouds in the future.
+Terraform provider for consistent resource naming across multiple clouds. `aws` is the default cloud profile, and `azure` is supported with Azure CAF resource coverage.
 
 ## Provider Configuration
 
@@ -15,11 +15,14 @@ terraform {
 }
 
 provider "sigil" {
+  # Optional, defaults to "aws"
+  cloud = "aws"
+
   org_prefix = "acme"
   project    = "iac"
   env        = "dev"
   region     = "ap-southeast-2"
-  # Optional: omit region for regional resources (default true)
+  # Optional: omit region for resources marked regional (default true)
   ignore_region_for_regional_resources = false
 
   # Optional: override just one region
@@ -45,6 +48,7 @@ For reuse across multiple provider aliases, you can supply a base `config` objec
 ```hcl
 locals {
   sigil_config = {
+    cloud      = "aws"
     org_prefix = "acme"
     project    = "iac"
     env        = "dev"
@@ -68,6 +72,23 @@ provider "sigil" {
   overrides = {
     region = "us-east-1"
   }
+}
+```
+
+Azure example (`cloud = "azure"`):
+
+```hcl
+provider "sigil" {
+  cloud      = "azure"
+  org_prefix = "acme"
+  project    = "payments"
+  env        = "prod"
+  region     = "eastus2"
+
+  # Optional Azure-specific overrides
+  # resource_acronyms = {
+  #   azurerm_storage_account = "stac"
+  # }
 }
 ```
 
@@ -172,6 +193,27 @@ output "queue_style" {
 }
 ```
 
+```hcl
+data "sigil_mark" "azure_storage_account" {
+  what      = "azurerm_storage_account"
+  qualifier = "raw"
+
+  # Azure storage accounts are lowercase/no-dash constrained.
+  # The Azure cloud defaults select an allowed style automatically.
+  recipe = ["org", "proj", "env", "resource", "qualifier"]
+}
+
+output "azure_storage_account_name" {
+  value = data.sigil_mark.azure_storage_account.name
+  # Example: "acmepaymentsprodstazraw"
+}
+
+output "azure_storage_account_style" {
+  value = data.sigil_mark.azure_storage_account.style
+  # Example: "straight"
+}
+```
+
 ## Outputs
 
 The data source returns:
@@ -247,7 +289,7 @@ When `ignore_region_for_regional_resources` is `true` (default), the `region` co
 
 ## Resource Acronyms and Scope
 
-Default resource acronyms and scope. Scope is used by `ignore_region_for_regional_resources`. You can override acronyms with `resource_acronyms`.
+Default resource acronyms and scope for `cloud = "aws"`. Scope is used by `ignore_region_for_regional_resources`. You can override acronyms with `resource_acronyms`.
 
 | Resource | Acronym | Scope |
 | --- | --- | --- |
@@ -334,6 +376,18 @@ Default resource acronyms and scope. Scope is used by `ignore_region_for_regiona
 | `wafv2_web_acl` | `wfac` | `regional` |
 | `wafv2_web_acl_rule` | `wfar` | `regional` |
 
+## Azure CAF Acronyms and Constraints
+
+For `cloud = "azure"`, Sigil loads **all Azure CAF resource types** from `resourceDefinition.json` and applies:
+- A 4-character acronym per resource identifier.
+- Per-resource min/max/regex constraints.
+- Per-resource style allowances derived from CAF dash/lowercase metadata.
+
+Comprehensive reference (395 resource types):
+- `azure-caf-resources.md`
+- Azure naming rules: https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/resource-name-rules
+- CAF abbreviations: https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/ready/azure-best-practices/resource-abbreviations
+
 ## Naming Styles
 
 Style priority determines how names are formatted. If a resource has style constraints, the provider selects the first allowed style in the priority list.
@@ -356,11 +410,15 @@ Style behaviors:
 
 Words are extracted from each component using the pattern `[A-Za-z0-9]+`, so punctuation or separators become word boundaries. If no valid style matches the priority list and any resource overrides, the provider falls back to `dashed`.
 
-By default, `s3` and `s3_bucket` are restricted to `dashed` and `straight` to align with S3 naming rules.
+Cloud-specific style overrides are applied automatically:
+- `aws`: `s3` and `s3_bucket` are restricted to `dashed` and `straight`.
+- `azure`: each CAF resource inherits style limits from CAF dash/lowercase metadata.
 
 ## Resource Constraints
 
-Some resources have naming constraints enforced after formatting. The constraint name matches the `what` input (case-insensitive). The table below lists built-in constraints and their limits.
+Some resources have naming constraints enforced after formatting. The constraint name matches the `what` input (case-insensitive).
+
+The table below lists built-in `aws` constraints. Azure constraints are listed in `azure-caf-resources.md`.
 
 | Resource | Min | Max | Pattern | Notes |
 | --- | --- | --- | --- | --- |
@@ -389,14 +447,15 @@ Constraint types include minimum or maximum length, required pattern, forbidden 
 
 - `config` (Optional) Base configuration object; accepts the same keys as the top-level attributes.
 - `overrides` (Optional) Overrides applied after top-level attributes; accepts the same keys as the top-level attributes.
+- `cloud` (Optional) Cloud naming profile. Supported values are `aws` (default) and `azure`.
 - `org_prefix` (Required unless set in `config` or `overrides`) Short organization identifier.
 - `project` (Optional) Project or workload identifier.
 - `env` (Required unless set in `config` or `overrides`) Environment identifier, such as `dev`, `staging`, or `prod`.
-- `region` (Optional) AWS region name, used to derive a short region code.
+- `region` (Optional) Cloud region name, used to derive a short region code. If no `region_map` entry exists, the raw region value is used.
 - `region_short_code` (Optional) Explicit short region code to use instead of mapping.
 - `region_map` (Optional) Full region map; when set, replaces the default map.
 - `region_overrides` (Optional) Map of region overrides applied on top of the default map.
-- `ignore_region_for_regional_resources` (Optional) When `true` (default), omit the region component for resources marked as `regional` in the acronyms table.
+- `ignore_region_for_regional_resources` (Optional) When `true` (default), omit the region component for resources marked as `regional` in the acronyms tables.
 - `recipe` (Optional) Ordered list of components used to build the name.
 - `style_priority` (Optional) Preferred naming styles in order of precedence.
 - `resource_acronyms` (Optional) Map of resource identifiers to acronyms.
@@ -404,4 +463,10 @@ Constraint types include minimum or maximum length, required pattern, forbidden 
 
 ## Notes
 
-Default recipe components are `org`, `proj`, `env`, `region`, `resource`, and `qualifier`. Components are only included when non-empty, and you can omit them by removing items from the recipe. If both `region_map` and `region_overrides` are set, overrides are applied to the map. When `ignore_region_for_regional_resources` is `true`, the region component is omitted for regional resources unless explicitly overridden.
+Default recipe components are `org`, `proj`, `env`, `region`, `resource`, and `qualifier`. Components are only included when non-empty, and you can omit them by removing items from the recipe.
+
+If both `region_map` and `region_overrides` are set, overrides are applied to the map.
+
+When `ignore_region_for_regional_resources` is `true`, the region component is omitted for resources marked as regional unless explicitly overridden.
+
+`cloud = "azure"` loads full Azure CAF resource defaults (acronyms, style rules, and regex constraints) from `resourceDefinition.json`.

@@ -2,6 +2,10 @@
 
 Generates a resource name and its components using provider configuration, optional overrides, and style preferences.
 
+Behavior is cloud-aware:
+- `cloud = "aws"` uses built-in AWS acronyms and constraints.
+- `cloud = "azure"` uses Azure CAF resource definitions (acronyms, style rules, and regex constraints).
+
 ## Example Usage
 
 These examples assume `ignore_region_for_regional_resources = false`. If you keep the default `true` and the resource is marked `regional`, the region segment and `region_code` will be omitted.
@@ -106,6 +110,25 @@ output "queue_style" {
 }
 ```
 
+```hcl
+data "sigil_mark" "azure_storage_account" {
+  what      = "azurerm_storage_account"
+  qualifier = "raw"
+
+  recipe = ["org", "proj", "env", "resource", "qualifier"]
+}
+
+output "azure_storage_account_name" {
+  value = data.sigil_mark.azure_storage_account.name
+  # Example: "acmepaymentsprodstazraw"
+}
+
+output "azure_storage_account_style" {
+  value = data.sigil_mark.azure_storage_account.style
+  # Example: "straight"
+}
+```
+
 ## Argument Reference
 
 - `what` (Required) Resource identifier, such as `s3` or `iam_role`.
@@ -128,13 +151,16 @@ output "queue_style" {
 
 The data source selects the first valid style from `style_priority` (request-specific) or the provider `style_priority` when none is supplied. If `resource_style_overrides` defines an allowed style list for the current `what`, only those styles are considered. If no style matches, the provider falls back to `dashed`.
 
-By default, `s3` and `s3_bucket` are restricted to `dashed` and `straight` to align with S3 naming rules.
+Cloud-specific style overrides are applied automatically:
+- `aws`: `s3` and `s3_bucket` are restricted to `dashed` and `straight`.
+- `azure`: each CAF resource inherits style limits from CAF dash/lowercase metadata.
 
 Valid styles and their output shapes:
 - `dashed` Lowercase words joined by `-`.
 - `underscore` Lowercase words joined by `_`.
 - `straight` Lowercase words concatenated.
 - `pascal` Words in `PascalCase`.
+- `pascaldashed` Words in `Pascal-Case` joined by `-`.
 - `camel` Words in `camelCase`.
 
 Words are extracted from each component using the pattern `[A-Za-z0-9]+`, so punctuation or separators become word boundaries.
@@ -142,6 +168,8 @@ Words are extracted from each component using the pattern `[A-Za-z0-9]+`, so pun
 ## Resource Constraints
 
 Some resources enforce naming constraints after formatting. The constraint name is the `what` input (case-insensitive). If the computed name violates a constraint, the data source returns an error.
+
+The table below lists built-in `aws` constraints. Azure constraints are listed in `../azure-caf-resources.md` and sourced from Azure naming rules plus Azure CAF definitions.
 
 | Resource | Min | Max | Pattern | Notes |
 | --- | --- | --- | --- | --- |
