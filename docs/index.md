@@ -388,6 +388,25 @@ Comprehensive reference (395 resource types):
 - Azure naming rules: https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/resource-name-rules
 - CAF abbreviations: https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/ready/azure-best-practices/resource-abbreviations
 
+### Supported Azure Resources and Acronyms
+
+Supported Azure `what` values are the Azure CAF resource identifiers listed in `azure-caf-resources.md`. The `Acronym` column in that table is the value returned by `resource_acronym`.
+
+Quick reference:
+
+| Azure Resource (`what`) | Acronym |
+| --- | --- |
+| `azurerm_resource_group` | `rgaz` |
+| `azurerm_storage_account` | `staz` |
+| `azurerm_virtual_network` | `vnet` |
+| `azurerm_subnet` | `snet` |
+| `azurerm_kubernetes_cluster` | `aksa` |
+| `azurerm_container_registry` | `craz` |
+| `azurerm_key_vault` | `kvaz` |
+| `azurerm_linux_virtual_machine` | `vmaz` |
+
+For the complete list of all 395 supported Azure resources and acronyms, see `azure-caf-resources.md`.
+
 ## Naming Styles
 
 Style priority determines how names are formatted. If a resource has style constraints, the provider selects the first allowed style in the priority list.
