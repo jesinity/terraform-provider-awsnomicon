@@ -87,7 +87,7 @@ provider "sigil" {
 
   # Optional Azure-specific overrides
   # resource_acronyms = {
-  #   azurerm_storage_account = "stac"
+  #   azurerm_storage_account = "st" # Use official CAF abbreviation if preferred.
   # }
 }
 ```
@@ -205,7 +205,7 @@ data "sigil_mark" "azure_storage_account" {
 
 output "azure_storage_account_name" {
   value = data.sigil_mark.azure_storage_account.name
-  # Example: "acmepaymentsprodstazraw"
+  # Example: "acmepaymentsprodstazraw" ("staz" is Sigil's 4-char normalized form of CAF "st")
 }
 
 output "azure_storage_account_style" {
@@ -380,6 +380,7 @@ Default resource acronyms and scope for `cloud = "aws"`. Scope is used by `ignor
 
 For `cloud = "azure"`, Sigil loads **all Azure CAF resource types** from `resourceDefinition.json` and applies:
 - A 4-character acronym per resource identifier.
+- Acronyms are derived from CAF slugs, then normalized to a fixed 4-character token.
 - Per-resource min/max/regex constraints.
 - Per-resource style allowances derived from CAF dash/lowercase metadata.
 
@@ -404,6 +405,8 @@ Quick reference:
 | `azurerm_container_registry` | `craz` |
 | `azurerm_key_vault` | `kvaz` |
 | `azurerm_linux_virtual_machine` | `vmaz` |
+
+Example: CAF lists storage account as `st`; Sigil's default is `staz` because Azure mode normalizes acronyms to 4 characters. Use `resource_acronyms` overrides when you need exact CAF abbreviations.
 
 For the complete list of all 395 supported Azure resources and acronyms, see `docs/azure-caf-resources.md`.
 

@@ -120,7 +120,7 @@ data "sigil_mark" "azure_storage_account" {
 
 output "azure_storage_account_name" {
   value = data.sigil_mark.azure_storage_account.name
-  # Example: "acmepaymentsprodstazraw"
+  # Example: "acmepaymentsprodstazraw" ("staz" is Sigil's 4-char normalized form of CAF "st")
 }
 
 output "azure_storage_account_style" {

@@ -5,6 +5,7 @@ All resource identifiers come from the Azure CAF provider resource catalog (`res
 
 - Total resource types: 395
 - Acronym policy in Sigil Azure mode: fixed 4-character acronym per resource
+- Acronyms are derived from CAF slugs, then normalized to 4 characters (for example, storage account `st` becomes `staz`)
 - Constraints source: Azure CAF definitions (which mirror Azure ARM naming restrictions)
 
 References:
