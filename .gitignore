@@ -41,3 +41,4 @@ crash.*.log
 # Go workspaces
 /go.work
 /go.work.sum
+.gocache/

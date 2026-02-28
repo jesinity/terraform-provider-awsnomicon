@@ -2,6 +2,7 @@ package provider
 
 import (
 	"context"
+	"fmt"
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
@@ -18,6 +19,7 @@ type SigilProvider struct {
 }
 
 type ProviderData struct {
+	Cloud                            string
 	OrgPrefix                        string
 	Project                          string
 	Env                              string
@@ -28,6 +30,7 @@ type ProviderData struct {
 	StylePriority                    []string
 	ResourceAcronyms                 map[string]string
 	ResourceStyleOverrides           map[string][]string
+	ResourceConstraints              map[string]naming.ResourceConstraint
 	IgnoreRegionForRegionalResources bool
 	RegionalResources                map[string]bool
 }
@@ -35,6 +38,7 @@ type ProviderData struct {
 type providerModel struct {
 	Config                           types.Object `tfsdk:"config"`
 	Overrides                        types.Object `tfsdk:"overrides"`
+	Cloud                            types.String `tfsdk:"cloud"`
 	OrgPrefix                        types.String `tfsdk:"org_prefix"`
 	Project                          types.String `tfsdk:"project"`
 	Env                              types.String `tfsdk:"env"`
@@ -50,6 +54,7 @@ type providerModel struct {
 }
 
 type providerConfigModel struct {
+	Cloud                            types.String `tfsdk:"cloud"`
 	OrgPrefix                        types.String `tfsdk:"org_prefix"`
 	Project                          types.String `tfsdk:"project"`
 	Env                              types.String `tfsdk:"env"`
@@ -101,22 +106,45 @@ func (p *SigilProvider) Configure(ctx context.Context, req provider.ConfigureReq
 		return
 	}
 
+	baseConfig, hasBaseConfig := decodeProviderConfigObject(ctx, config.Config, resp)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	overrideConfig, hasOverrideConfig := decodeProviderConfigObject(ctx, config.Overrides, resp)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	cloud := resolveCloud(config.Cloud, baseConfig, hasBaseConfig, overrideConfig, hasOverrideConfig)
+	if !naming.IsSupportedCloud(cloud) {
+		resp.Diagnostics.AddError("Invalid cloud", fmt.Sprintf("Unsupported cloud %q. Valid values are %q and %q.", cloud, naming.CloudAWS, naming.CloudAzure))
+		return
+	}
+
+	cloudDefaults, err := naming.DefaultCloudDefaults(cloud)
+	if err != nil {
+		resp.Diagnostics.AddError("Cloud defaults error", err.Error())
+		return
+	}
+
 	data := &ProviderData{
+		Cloud:                            cloud,
 		OrgPrefix:                        "",
 		Project:                          "",
 		Env:                              "",
 		Region:                           "",
 		RegionShortCode:                  "",
-		RegionMap:                        naming.DefaultRegionMap(),
+		RegionMap:                        cloudDefaults.RegionMap,
 		Recipe:                           naming.DefaultRecipe(),
 		StylePriority:                    naming.DefaultStylePriority(),
-		ResourceAcronyms:                 naming.DefaultResourceAcronyms(),
-		ResourceStyleOverrides:           naming.DefaultResourceStyleOverrides(),
+		ResourceAcronyms:                 cloudDefaults.ResourceAcronyms,
+		ResourceStyleOverrides:           cloudDefaults.ResourceStyleOverrides,
+		ResourceConstraints:              cloudDefaults.ResourceConstraints,
 		IgnoreRegionForRegionalResources: true,
-		RegionalResources:                naming.DefaultRegionalResources(),
+		RegionalResources:                cloudDefaults.RegionalResources,
 	}
 
-	if baseConfig, ok := decodeProviderConfigObject(ctx, config.Config, resp); ok {
+	if hasBaseConfig {
 		applyProviderConfig(ctx, resp, data, baseConfig)
 		if resp.Diagnostics.HasError() {
 			return
@@ -128,7 +156,7 @@ func (p *SigilProvider) Configure(ctx context.Context, req provider.ConfigureReq
 		return
 	}
 
-	if overrideConfig, ok := decodeProviderConfigObject(ctx, config.Overrides, resp); ok {
+	if hasOverrideConfig {
 		applyProviderConfig(ctx, resp, data, overrideConfig)
 		if resp.Diagnostics.HasError() {
 			return
@@ -161,6 +189,9 @@ func (p *SigilProvider) Resources(_ context.Context) []func() resource.Resource 
 
 func providerConfigSchemaAttributes() map[string]schema.Attribute {
 	return map[string]schema.Attribute{
+		"cloud": schema.StringAttribute{
+			Optional: true,
+		},
 		"org_prefix": schema.StringAttribute{
 			Optional: true,
 		},
@@ -208,6 +239,7 @@ func providerConfigSchemaAttributes() map[string]schema.Attribute {
 
 func providerConfigFromModel(config providerModel) providerConfigModel {
 	return providerConfigModel{
+		Cloud:                            config.Cloud,
 		OrgPrefix:                        config.OrgPrefix,
 		Project:                          config.Project,
 		Env:                              config.Env,
@@ -235,7 +267,24 @@ func decodeProviderConfigObject(ctx context.Context, obj types.Object, resp *pro
 	return decoded, true
 }
 
+func resolveCloud(topLevelCloud types.String, baseConfig providerConfigModel, hasBaseConfig bool, overrideConfig providerConfigModel, hasOverrideConfig bool) string {
+	cloud := naming.DefaultCloud()
+	if hasBaseConfig && !baseConfig.Cloud.IsNull() && !baseConfig.Cloud.IsUnknown() {
+		cloud = naming.NormalizeCloud(baseConfig.Cloud.ValueString())
+	}
+	if !topLevelCloud.IsNull() && !topLevelCloud.IsUnknown() {
+		cloud = naming.NormalizeCloud(topLevelCloud.ValueString())
+	}
+	if hasOverrideConfig && !overrideConfig.Cloud.IsNull() && !overrideConfig.Cloud.IsUnknown() {
+		cloud = naming.NormalizeCloud(overrideConfig.Cloud.ValueString())
+	}
+	return cloud
+}
+
 func applyProviderConfig(ctx context.Context, resp *provider.ConfigureResponse, data *ProviderData, config providerConfigModel) {
+	if !config.Cloud.IsNull() && !config.Cloud.IsUnknown() {
+		data.Cloud = naming.NormalizeCloud(config.Cloud.ValueString())
+	}
 	if !config.OrgPrefix.IsNull() && !config.OrgPrefix.IsUnknown() {
 		data.OrgPrefix = config.OrgPrefix.ValueString()
 	}

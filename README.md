@@ -1,6 +1,6 @@
 # sigil
 
-Terraform provider for AWS naming conventions and consistent resource naming. Today it's AWS-first, with room to expand to other clouds in the future.
+Terraform provider for consistent resource naming across multiple clouds. `aws` is the default cloud profile, and `azure` is supported with Azure CAF resource coverage.
 
 ## Provider Configuration
 
@@ -9,17 +9,20 @@ terraform {
   required_providers {
     sigil = {
       source  = "jesinity/sigil"
-      version = "0.2.0"
+      version = "1.0.0"
     }
   }
 }
 
 provider "sigil" {
+  # Optional, defaults to "aws"
+  cloud = "aws"
+
   org_prefix = "acme"
   project    = "iac"
   env        = "dev"
   region     = "ap-southeast-2"
-  # Optional: omit region for regional resources (default true)
+  # Optional: omit region for resources marked regional (default true)
   ignore_region_for_regional_resources = false
 
   # Optional: override just one region
@@ -45,6 +48,7 @@ For reuse across multiple provider aliases, you can supply a base `config` objec
 ```hcl
 locals {
   sigil_config = {
+    cloud      = "aws"
     org_prefix = "acme"
     project    = "iac"
     env        = "dev"
@@ -68,6 +72,23 @@ provider "sigil" {
   overrides = {
     region = "us-east-1"
   }
+}
+```
+
+Azure example (`cloud = "azure"`):
+
+```hcl
+provider "sigil" {
+  cloud      = "azure"
+  org_prefix = "acme"
+  project    = "payments"
+  env        = "prod"
+  region     = "eastus2"
+
+  # Optional Azure-specific overrides
+  # resource_acronyms = {
+  #   azurerm_storage_account = "st" # CAF default shown here as an explicit override example.
+  # }
 }
 ```
 
@@ -172,6 +193,27 @@ output "queue_style" {
 }
 ```
 
+```hcl
+data "sigil_mark" "azure_storage_account" {
+  what      = "azurerm_storage_account"
+  qualifier = "raw"
+
+  # Azure storage accounts are lowercase/no-dash constrained.
+  # The Azure cloud defaults select an allowed style automatically.
+  recipe = ["org", "proj", "env", "resource", "qualifier"]
+}
+
+output "azure_storage_account_name" {
+  value = data.sigil_mark.azure_storage_account.name
+  # Example: "acmepaymentsprodstraw"
+}
+
+output "azure_storage_account_style" {
+  value = data.sigil_mark.azure_storage_account.style
+  # Example: "straight"
+}
+```
+
 ## Outputs
 
 The data source returns:
@@ -247,7 +289,7 @@ When `ignore_region_for_regional_resources` is `true` (default), the `region` co
 
 ## Resource Acronyms and Scope
 
-Default resource acronyms and scope. Scope is used by `ignore_region_for_regional_resources`. You can override acronyms with `resource_acronyms`.
+Default resource acronyms and scope for `cloud = "aws"`. Scope is used by `ignore_region_for_regional_resources`. You can override acronyms with `resource_acronyms`.
 
 | Resource | Acronym | Scope |
 | --- | --- | --- |
@@ -334,6 +376,40 @@ Default resource acronyms and scope. Scope is used by `ignore_region_for_regiona
 | `wafv2_web_acl` | `wfac` | `regional` |
 | `wafv2_web_acl_rule` | `wfar` | `regional` |
 
+## Azure CAF Acronyms and Constraints
+
+For `cloud = "azure"`, Sigil loads **all Azure CAF resource types** from `resourceDefinition.json` and applies:
+- CAF acronyms from the Azure CAF resource catalog.
+- Per-resource min/max/regex constraints.
+- Per-resource style allowances derived from CAF dash/lowercase metadata.
+
+Comprehensive reference (395 resource types):
+- `docs/azure-caf-resources.md`
+- CAF resource catalog JSON: https://github.com/aztfmod/terraform-provider-azurecaf/blob/main/resourceDefinition.json
+- Azure naming rules: https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/resource-name-rules
+- CAF abbreviations: https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/ready/azure-best-practices/resource-abbreviations
+
+### Supported Azure Resources and Acronyms
+
+Supported Azure `what` values are the Azure CAF resource identifiers listed in `docs/azure-caf-resources.md`. The `Acronym` column in that table is the value returned by `resource_acronym`.
+
+Quick reference:
+
+| Azure Resource (`what`) | Acronym |
+| --- | --- |
+| `azurerm_resource_group` | `rg` |
+| `azurerm_storage_account` | `st` |
+| `azurerm_virtual_network` | `vnet` |
+| `azurerm_subnet` | `snet` |
+| `azurerm_kubernetes_cluster` | `aks` |
+| `azurerm_container_registry` | `cr` |
+| `azurerm_key_vault` | `kv` |
+| `azurerm_linux_virtual_machine` | `vm` |
+
+Sigil uses CAF acronyms directly by default. Use `resource_acronyms` only when you need explicit overrides.
+
+For the complete list of all 395 supported Azure resources and acronyms, see `docs/azure-caf-resources.md`.
+
 ## Naming Styles
 
 Style priority determines how names are formatted. If a resource has style constraints, the provider selects the first allowed style in the priority list.
@@ -356,11 +432,15 @@ Style behaviors:
 
 Words are extracted from each component using the pattern `[A-Za-z0-9]+`, so punctuation or separators become word boundaries. If no valid style matches the priority list and any resource overrides, the provider falls back to `dashed`.
 
-By default, `s3` and `s3_bucket` are restricted to `dashed` and `straight` to align with S3 naming rules.
+Cloud-specific style overrides are applied automatically:
+- `aws`: `s3` and `s3_bucket` are restricted to `dashed` and `straight`.
+- `azure`: each CAF resource inherits style limits from CAF dash/lowercase metadata.
 
 ## Resource Constraints
 
-Some resources have naming constraints enforced after formatting. The constraint name matches the `what` input (case-insensitive). The table below lists built-in constraints and their limits.
+Some resources have naming constraints enforced after formatting. The constraint name matches the `what` input (case-insensitive).
+
+The table below lists built-in `aws` constraints. Azure constraints are listed in `docs/azure-caf-resources.md`.
 
 | Resource | Min | Max | Pattern | Notes |
 | --- | --- | --- | --- | --- |

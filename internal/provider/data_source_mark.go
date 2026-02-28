@@ -150,6 +150,7 @@ func (d *MarkDataSource) Read(ctx context.Context, req datasource.ReadRequest, r
 	}
 
 	result, err := naming.BuildName(naming.Config{
+		Cloud:                            d.providerData.Cloud,
 		OrgPrefix:                        d.providerData.OrgPrefix,
 		Project:                          d.providerData.Project,
 		Env:                              d.providerData.Env,
@@ -160,6 +161,7 @@ func (d *MarkDataSource) Read(ctx context.Context, req datasource.ReadRequest, r
 		StylePriority:                    d.providerData.StylePriority,
 		ResourceAcronyms:                 d.providerData.ResourceAcronyms,
 		ResourceStyleOverrides:           d.providerData.ResourceStyleOverrides,
+		ResourceConstraints:              d.providerData.ResourceConstraints,
 		IgnoreRegionForRegionalResources: d.providerData.IgnoreRegionForRegionalResources,
 		RegionalResources:                d.providerData.RegionalResources,
 	}, naming.BuildInput{
