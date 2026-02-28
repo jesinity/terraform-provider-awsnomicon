@@ -388,6 +388,7 @@ For `cloud = "azure"`, Sigil loads **all Azure CAF resource types** from `resour
 
 Comprehensive reference (395 resource types):
 - `docs/azure-caf-resources.md`
+- CAF resource catalog JSON: https://github.com/aztfmod/terraform-provider-azurecaf/blob/main/resourceDefinition.json
 - Azure naming rules: https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/resource-name-rules
 - CAF abbreviations: https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/ready/azure-best-practices/resource-abbreviations
 

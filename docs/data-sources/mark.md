@@ -5,6 +5,7 @@ Generates a resource name and its components using provider configuration, optio
 Behavior is cloud-aware:
 - `cloud = "aws"` uses built-in AWS acronyms and constraints.
 - `cloud = "azure"` uses Azure CAF resource definitions (acronyms, style rules, and regex constraints).
+- CAF resource catalog JSON: https://github.com/aztfmod/terraform-provider-azurecaf/blob/main/resourceDefinition.json
 
 ## Example Usage
 
