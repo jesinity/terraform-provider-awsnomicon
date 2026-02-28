@@ -13,8 +13,8 @@ func TestDefaultCloudDefaultsAzure(t *testing.T) {
 	}
 
 	for resource, acronym := range defaults.ResourceAcronyms {
-		if len(acronym) != 4 {
-			t.Fatalf("resource %q has acronym %q, expected 4 characters", resource, acronym)
+		if len(acronym) != 4 && len(acronym) != 5 {
+			t.Fatalf("resource %q has acronym %q, expected 4 or 5 characters", resource, acronym)
 		}
 	}
 
@@ -24,6 +24,18 @@ func TestDefaultCloudDefaultsAzure(t *testing.T) {
 
 	if got := defaults.ResourceAcronyms["azurerm_resource_group"]; got != "regr" {
 		t.Fatalf("expected normalized resource group acronym %q, got %q", "regr", got)
+	}
+
+	if got := defaults.ResourceAcronyms["azurerm_virtual_machine"]; got != "vimav" {
+		t.Fatalf("expected disambiguated virtual machine acronym %q, got %q", "vimav", got)
+	}
+
+	seen := map[string]string{}
+	for resource, acronym := range defaults.ResourceAcronyms {
+		if previous, exists := seen[acronym]; exists {
+			t.Fatalf("expected unique normalized acronyms, but %q and %q both use %q", previous, resource, acronym)
+		}
+		seen[acronym] = resource
 	}
 }
 

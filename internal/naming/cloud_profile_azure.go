@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"regexp"
+	"sort"
 	"strings"
 	"sync"
 	"unicode"
@@ -86,6 +87,10 @@ func loadAzureCloudDefaults(useCAFAcronyms bool) (CloudDefaults, error) {
 		styleOverrides[name] = azureCAFStyleOverrides(definition.Lowercase, definition.Dashes)
 		regionalResources[name] = azureCAFIsRegionalScope(definition.Scope)
 		constraints[name] = azureCAFConstraint(definition)
+	}
+
+	if !useCAFAcronyms {
+		azureCAFDisambiguateNormalizedAcronyms(definitions, acronyms)
 	}
 
 	return CloudDefaults{
@@ -205,6 +210,66 @@ func firstN(value string, n int) string {
 		return value
 	}
 	return value[:n]
+}
+
+func azureCAFDisambiguateNormalizedAcronyms(definitions []azureCAFResourceDefinition, acronyms map[string]string) {
+	groups := map[string][]string{}
+	for _, definition := range definitions {
+		name := strings.ToLower(strings.TrimSpace(definition.Name))
+		if name == "" {
+			continue
+		}
+		acronym := strings.TrimSpace(acronyms[name])
+		if acronym == "" {
+			continue
+		}
+		groups[acronym] = append(groups[acronym], name)
+	}
+
+	for base, names := range groups {
+		if len(names) <= 1 {
+			continue
+		}
+
+		// Stable ordering keeps outputs deterministic across runs.
+		sort.Strings(names)
+		used := map[string]bool{}
+		for _, name := range names {
+			acronyms[name] = azureCAFDisambiguatedAcronym(base, name, used)
+			used[acronyms[name]] = true
+		}
+	}
+}
+
+func azureCAFDisambiguatedAcronym(base, name string, used map[string]bool) string {
+	clean := azureCAFResourceDisambiguationSource(name)
+	for _, r := range clean {
+		candidate := base + string(r)
+		if !used[candidate] {
+			return candidate
+		}
+	}
+
+	for _, r := range "abcdefghijklmnopqrstuvwxyz0123456789" {
+		candidate := base + string(r)
+		if !used[candidate] {
+			return candidate
+		}
+	}
+
+	// Extremely unlikely: keep deterministic output if all 36 suffixes are exhausted.
+	return base + "x"
+}
+
+func azureCAFResourceDisambiguationSource(name string) string {
+	normalized := strings.ToLower(strings.TrimSpace(name))
+	for _, prefix := range []string{"azurerm_", "azure_", "azapi_"} {
+		if strings.HasPrefix(normalized, prefix) {
+			normalized = strings.TrimPrefix(normalized, prefix)
+			break
+		}
+	}
+	return toLowerAlnum(normalized)
 }
 
 func azureCAFIsRegionalScope(scope string) bool {
