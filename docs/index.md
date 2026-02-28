@@ -80,7 +80,6 @@ Azure example (`cloud = "azure"`):
 ```hcl
 provider "sigil" {
   cloud      = "azure"
-  use_azure_caf_acronyms = true
   org_prefix = "acme"
   project    = "payments"
   env        = "prod"
@@ -88,7 +87,7 @@ provider "sigil" {
 
   # Optional Azure-specific overrides
   # resource_acronyms = {
-  #   azurerm_storage_account = "st" # Use official CAF abbreviation if preferred.
+  #   azurerm_storage_account = "st" # CAF default shown here as an explicit override example.
   # }
 }
 ```
@@ -206,7 +205,7 @@ data "sigil_mark" "azure_storage_account" {
 
 output "azure_storage_account_name" {
   value = data.sigil_mark.azure_storage_account.name
-  # Example: "acmepaymentsprodstacraw" ("stac" is Sigil's normalized form of CAF "st")
+  # Example: "acmepaymentsprodstraw"
 }
 
 output "azure_storage_account_style" {
@@ -380,10 +379,7 @@ Default resource acronyms and scope for `cloud = "aws"`. Scope is used by `ignor
 ## Azure CAF Acronyms and Constraints
 
 For `cloud = "azure"`, Sigil loads **all Azure CAF resource types** from `resourceDefinition.json` and applies:
-- By default, a 4-character acronym per resource identifier.
-- If a 4-character acronym collides, Sigil expands only the conflicting entries to 5 characters.
-- Default acronyms are derived from CAF slugs, then normalized to Sigil defaults.
-- Optional `use_azure_caf_acronyms = true` to use CAF slugs directly as defaults.
+- CAF acronyms from the Azure CAF resource catalog.
 - Per-resource min/max/regex constraints.
 - Per-resource style allowances derived from CAF dash/lowercase metadata.
 
@@ -401,16 +397,16 @@ Quick reference:
 
 | Azure Resource (`what`) | Acronym |
 | --- | --- |
-| `azurerm_resource_group` | `regr` (or `rg` with `use_azure_caf_acronyms = true`) |
-| `azurerm_storage_account` | `stac` (or `st` with `use_azure_caf_acronyms = true`) |
+| `azurerm_resource_group` | `rg` |
+| `azurerm_storage_account` | `st` |
 | `azurerm_virtual_network` | `vnet` |
 | `azurerm_subnet` | `snet` |
-| `azurerm_kubernetes_cluster` | `aksa` |
-| `azurerm_container_registry` | `core` |
-| `azurerm_key_vault` | `keva` |
-| `azurerm_linux_virtual_machine` | `vimal` |
+| `azurerm_kubernetes_cluster` | `aks` |
+| `azurerm_container_registry` | `cr` |
+| `azurerm_key_vault` | `kv` |
+| `azurerm_linux_virtual_machine` | `vm` |
 
-Example: CAF lists storage account as `st`; Sigil's default is `stac` in normalized mode. Set `use_azure_caf_acronyms = true` or use `resource_acronyms` overrides when you need exact CAF abbreviations.
+Sigil uses CAF acronyms directly by default. Use `resource_acronyms` only when you need explicit overrides.
 
 For the complete list of all 395 supported Azure resources and acronyms, see `azure-caf-resources.md`.
 
@@ -474,7 +470,6 @@ Constraint types include minimum or maximum length, required pattern, forbidden 
 - `config` (Optional) Base configuration object; accepts the same keys as the top-level attributes.
 - `overrides` (Optional) Overrides applied after top-level attributes; accepts the same keys as the top-level attributes.
 - `cloud` (Optional) Cloud naming profile. Supported values are `aws` (default) and `azure`.
-- `use_azure_caf_acronyms` (Optional) When `true` and `cloud = "azure"`, use CAF abbreviations (for example `st`) as the default `resource_acronym` values instead of Sigil's normalized defaults (for example `stac`). Defaults to `false`.
 - `org_prefix` (Required unless set in `config` or `overrides`) Short organization identifier.
 - `project` (Optional) Project or workload identifier.
 - `env` (Required unless set in `config` or `overrides`) Environment identifier, such as `dev`, `staging`, or `prod`.
@@ -497,4 +492,3 @@ If both `region_map` and `region_overrides` are set, overrides are applied to th
 When `ignore_region_for_regional_resources` is `true`, the region component is omitted for resources marked as regional unless explicitly overridden.
 
 `cloud = "azure"` loads full Azure CAF resource defaults (acronyms, style rules, and regex constraints) from `resourceDefinition.json`.
-Set `use_azure_caf_acronyms = true` to use CAF slugs directly as default acronyms.

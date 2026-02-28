@@ -39,7 +39,6 @@ type providerModel struct {
 	Config                           types.Object `tfsdk:"config"`
 	Overrides                        types.Object `tfsdk:"overrides"`
 	Cloud                            types.String `tfsdk:"cloud"`
-	UseAzureCAFAcronyms              types.Bool   `tfsdk:"use_azure_caf_acronyms"`
 	OrgPrefix                        types.String `tfsdk:"org_prefix"`
 	Project                          types.String `tfsdk:"project"`
 	Env                              types.String `tfsdk:"env"`
@@ -56,7 +55,6 @@ type providerModel struct {
 
 type providerConfigModel struct {
 	Cloud                            types.String `tfsdk:"cloud"`
-	UseAzureCAFAcronyms              types.Bool   `tfsdk:"use_azure_caf_acronyms"`
 	OrgPrefix                        types.String `tfsdk:"org_prefix"`
 	Project                          types.String `tfsdk:"project"`
 	Env                              types.String `tfsdk:"env"`
@@ -123,10 +121,7 @@ func (p *SigilProvider) Configure(ctx context.Context, req provider.ConfigureReq
 		return
 	}
 
-	useAzureCAFAcronyms := resolveUseAzureCAFAcronyms(config.UseAzureCAFAcronyms, baseConfig, hasBaseConfig, overrideConfig, hasOverrideConfig)
-	cloudDefaults, err := naming.DefaultCloudDefaultsWithOptions(cloud, naming.CloudDefaultsOptions{
-		UseAzureCAFAcronyms: cloud == naming.CloudAzure && useAzureCAFAcronyms,
-	})
+	cloudDefaults, err := naming.DefaultCloudDefaults(cloud)
 	if err != nil {
 		resp.Diagnostics.AddError("Cloud defaults error", err.Error())
 		return
@@ -197,9 +192,6 @@ func providerConfigSchemaAttributes() map[string]schema.Attribute {
 		"cloud": schema.StringAttribute{
 			Optional: true,
 		},
-		"use_azure_caf_acronyms": schema.BoolAttribute{
-			Optional: true,
-		},
 		"org_prefix": schema.StringAttribute{
 			Optional: true,
 		},
@@ -248,7 +240,6 @@ func providerConfigSchemaAttributes() map[string]schema.Attribute {
 func providerConfigFromModel(config providerModel) providerConfigModel {
 	return providerConfigModel{
 		Cloud:                            config.Cloud,
-		UseAzureCAFAcronyms:              config.UseAzureCAFAcronyms,
 		OrgPrefix:                        config.OrgPrefix,
 		Project:                          config.Project,
 		Env:                              config.Env,
@@ -288,20 +279,6 @@ func resolveCloud(topLevelCloud types.String, baseConfig providerConfigModel, ha
 		cloud = naming.NormalizeCloud(overrideConfig.Cloud.ValueString())
 	}
 	return cloud
-}
-
-func resolveUseAzureCAFAcronyms(topLevel types.Bool, baseConfig providerConfigModel, hasBaseConfig bool, overrideConfig providerConfigModel, hasOverrideConfig bool) bool {
-	useAzureCAFAcronyms := false
-	if hasBaseConfig && !baseConfig.UseAzureCAFAcronyms.IsNull() && !baseConfig.UseAzureCAFAcronyms.IsUnknown() {
-		useAzureCAFAcronyms = baseConfig.UseAzureCAFAcronyms.ValueBool()
-	}
-	if !topLevel.IsNull() && !topLevel.IsUnknown() {
-		useAzureCAFAcronyms = topLevel.ValueBool()
-	}
-	if hasOverrideConfig && !overrideConfig.UseAzureCAFAcronyms.IsNull() && !overrideConfig.UseAzureCAFAcronyms.IsUnknown() {
-		useAzureCAFAcronyms = overrideConfig.UseAzureCAFAcronyms.ValueBool()
-	}
-	return useAzureCAFAcronyms
 }
 
 func applyProviderConfig(ctx context.Context, resp *provider.ConfigureResponse, data *ProviderData, config providerConfigModel) {

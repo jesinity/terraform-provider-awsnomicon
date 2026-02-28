@@ -15,13 +15,9 @@ type CloudDefaults struct {
 	RegionalResources      map[string]bool
 }
 
-type CloudDefaultsOptions struct {
-	UseAzureCAFAcronyms bool
-}
-
 type CloudProfile interface {
 	Cloud() string
-	Defaults(options CloudDefaultsOptions) (CloudDefaults, error)
+	Defaults() (CloudDefaults, error)
 }
 
 var cloudProfiles = map[string]CloudProfile{
@@ -47,14 +43,10 @@ func IsSupportedCloud(cloud string) bool {
 }
 
 func DefaultCloudDefaults(cloud string) (CloudDefaults, error) {
-	return DefaultCloudDefaultsWithOptions(cloud, CloudDefaultsOptions{})
-}
-
-func DefaultCloudDefaultsWithOptions(cloud string, options CloudDefaultsOptions) (CloudDefaults, error) {
 	normalized := NormalizeCloud(cloud)
 	profile, ok := cloudProfiles[normalized]
 	if !ok {
 		return CloudDefaults{}, fmt.Errorf("unsupported cloud %q", cloud)
 	}
-	return profile.Defaults(options)
+	return profile.Defaults()
 }

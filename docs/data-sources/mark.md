@@ -6,6 +6,7 @@ Behavior is cloud-aware:
 - `cloud = "aws"` uses built-in AWS acronyms and constraints.
 - `cloud = "azure"` uses Azure CAF resource definitions (acronyms, style rules, and regex constraints).
 - CAF resource catalog JSON: https://github.com/aztfmod/terraform-provider-azurecaf/blob/main/resourceDefinition.json
+- Azure CAF examples: `azurerm_resource_group -> rg`, `azurerm_storage_account -> st`.
 
 ## Example Usage
 
@@ -121,7 +122,7 @@ data "sigil_mark" "azure_storage_account" {
 
 output "azure_storage_account_name" {
   value = data.sigil_mark.azure_storage_account.name
-  # Example: "acmepaymentsprodstacraw" ("stac" is Sigil's normalized form of CAF "st")
+  # Example: "acmepaymentsprodstraw"
 }
 
 output "azure_storage_account_style" {

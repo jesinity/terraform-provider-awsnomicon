@@ -6,7 +6,7 @@ func (awsCloudProfile) Cloud() string {
 	return CloudAWS
 }
 
-func (awsCloudProfile) Defaults(_ CloudDefaultsOptions) (CloudDefaults, error) {
+func (awsCloudProfile) Defaults() (CloudDefaults, error) {
 	return CloudDefaults{
 		RegionMap:              DefaultRegionMap(),
 		ResourceAcronyms:       DefaultResourceAcronyms(),
