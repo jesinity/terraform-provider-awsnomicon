@@ -26,8 +26,32 @@ func TestDefaultCloudDefaultsAzure(t *testing.T) {
 		t.Fatalf("expected normalized resource group acronym %q, got %q", "regr", got)
 	}
 
-	if got := defaults.ResourceAcronyms["azurerm_virtual_machine"]; got != "vimav" {
-		t.Fatalf("expected disambiguated virtual machine acronym %q, got %q", "vimav", got)
+	if got := defaults.ResourceAcronyms["azurerm_virtual_machine"]; got != "vima" {
+		t.Fatalf("expected primary virtual machine acronym %q, got %q", "vima", got)
+	}
+
+	if got := defaults.ResourceAcronyms["azurerm_linux_virtual_machine"]; got != "vimal" {
+		t.Fatalf("expected disambiguated linux virtual machine acronym %q, got %q", "vimal", got)
+	}
+
+	if got := defaults.ResourceAcronyms["azurerm_windows_virtual_machine"]; got != "vimaw" {
+		t.Fatalf("expected disambiguated windows virtual machine acronym %q, got %q", "vimaw", got)
+	}
+
+	if got := defaults.ResourceAcronyms["azurerm_api_management"]; got != "apim" {
+		t.Fatalf("expected primary API management acronym %q, got %q", "apim", got)
+	}
+
+	if got := defaults.ResourceAcronyms["azurerm_api_management_group"]; got != "apimg" {
+		t.Fatalf("expected API management group acronym %q, got %q", "apimg", got)
+	}
+
+	if got := defaults.ResourceAcronyms["azurerm_api_management_logger"]; got != "apiml" {
+		t.Fatalf("expected API management logger acronym %q, got %q", "apiml", got)
+	}
+
+	if got := defaults.ResourceAcronyms["azurerm_api_management_service"]; got != "apims" {
+		t.Fatalf("expected API management service acronym %q, got %q", "apims", got)
 	}
 
 	seen := map[string]string{}

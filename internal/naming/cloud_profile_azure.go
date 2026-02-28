@@ -233,24 +233,97 @@ func azureCAFDisambiguateNormalizedAcronyms(definitions []azureCAFResourceDefini
 
 		// Stable ordering keeps outputs deterministic across runs.
 		sort.Strings(names)
-		used := map[string]bool{}
+		resourceTokens := map[string][]string{}
+		tokenFrequency := map[string]int{}
 		for _, name := range names {
-			acronyms[name] = azureCAFDisambiguatedAcronym(base, name, used)
-			used[acronyms[name]] = true
+			tokens := azureCAFResourceTokens(name)
+			resourceTokens[name] = tokens
+			seen := map[string]bool{}
+			for _, token := range tokens {
+				if token == "" || seen[token] {
+					continue
+				}
+				tokenFrequency[token]++
+				seen[token] = true
+			}
+		}
+
+		primary := azureCAFPrimaryResourceForBase(names, resourceTokens)
+		used := map[string]bool{}
+		acronyms[primary] = base
+		used[base] = true
+
+		type disambiguationItem struct {
+			name           string
+			tokens         []string
+			preferredToken string
+		}
+
+		items := []disambiguationItem{}
+		for _, name := range names {
+			if name == primary {
+				continue
+			}
+			tokens := resourceTokens[name]
+			items = append(items, disambiguationItem{
+				name:           name,
+				tokens:         tokens,
+				preferredToken: azureCAFPreferredDisambiguationToken(tokens, tokenFrequency),
+			})
+		}
+
+		sort.Slice(items, func(i, j int) bool {
+			left := items[i]
+			right := items[j]
+			if len(left.preferredToken) != len(right.preferredToken) {
+				return len(left.preferredToken) < len(right.preferredToken)
+			}
+			if left.preferredToken != right.preferredToken {
+				return left.preferredToken < right.preferredToken
+			}
+			return left.name < right.name
+		})
+
+		for _, item := range items {
+			acronyms[item.name] = azureCAFDisambiguatedAcronym(base, item.tokens, tokenFrequency, used)
+			used[acronyms[item.name]] = true
 		}
 	}
 }
 
-func azureCAFDisambiguatedAcronym(base, name string, used map[string]bool) string {
-	clean := azureCAFResourceDisambiguationSource(name)
-	for _, r := range clean {
-		candidate := base + string(r)
-		if !used[candidate] {
-			return candidate
+func azureCAFPrimaryResourceForBase(names []string, resourceTokens map[string][]string) string {
+	if len(names) == 0 {
+		return ""
+	}
+
+	primary := names[0]
+	for _, candidate := range names[1:] {
+		primaryTokens := resourceTokens[primary]
+		candidateTokens := resourceTokens[candidate]
+		if len(candidateTokens) < len(primaryTokens) {
+			primary = candidate
+			continue
+		}
+		if len(candidateTokens) > len(primaryTokens) {
+			continue
+		}
+		if len(candidate) < len(primary) {
+			primary = candidate
+			continue
+		}
+		if len(candidate) > len(primary) {
+			continue
+		}
+		if candidate < primary {
+			primary = candidate
 		}
 	}
 
-	for _, r := range "abcdefghijklmnopqrstuvwxyz0123456789" {
+	return primary
+}
+
+func azureCAFDisambiguatedAcronym(base string, tokens []string, tokenFrequency map[string]int, used map[string]bool) string {
+	for _, r := range azureCAFDisambiguationSuffixRunes(tokens, tokenFrequency) {
 		candidate := base + string(r)
 		if !used[candidate] {
 			return candidate
@@ -261,7 +334,77 @@ func azureCAFDisambiguatedAcronym(base, name string, used map[string]bool) strin
 	return base + "x"
 }
 
-func azureCAFResourceDisambiguationSource(name string) string {
+func azureCAFDisambiguationSuffixRunes(tokens []string, tokenFrequency map[string]int) []rune {
+	candidates := []rune{}
+	seen := map[rune]bool{}
+	addRune := func(r rune) {
+		if !unicode.IsLetter(r) && !unicode.IsDigit(r) {
+			return
+		}
+		r = unicode.ToLower(r)
+		if seen[r] {
+			return
+		}
+		seen[r] = true
+		candidates = append(candidates, r)
+	}
+	addRunes := func(value string) {
+		for _, r := range toLowerAlnum(value) {
+			addRune(r)
+		}
+	}
+
+	preferred := azureCAFPreferredDisambiguationToken(tokens, tokenFrequency)
+	if preferred != "" {
+		preferredRunes := []rune(toLowerAlnum(preferred))
+		addRune(preferredRunes[0])
+		for _, r := range preferredRunes[1:] {
+			if !azureCAFIsVowelRune(r) {
+				addRune(r)
+			}
+		}
+		for _, r := range preferredRunes[1:] {
+			if azureCAFIsVowelRune(r) {
+				addRune(r)
+			}
+		}
+	}
+
+	for i := len(tokens) - 1; i >= 0; i-- {
+		if tokens[i] == "" {
+			continue
+		}
+		addRunes(tokens[i][:1])
+	}
+
+	addRunes(strings.Join(tokens, ""))
+	addRunes("abcdefghijklmnopqrstuvwxyz0123456789")
+	return candidates
+}
+
+func azureCAFPreferredDisambiguationToken(tokens []string, tokenFrequency map[string]int) string {
+	for i := len(tokens) - 1; i >= 0; i-- {
+		token := tokens[i]
+		if tokenFrequency[token] == 1 {
+			return token
+		}
+	}
+	if len(tokens) > 0 {
+		return tokens[len(tokens)-1]
+	}
+	return ""
+}
+
+func azureCAFIsVowelRune(r rune) bool {
+	switch unicode.ToLower(r) {
+	case 'a', 'e', 'i', 'o', 'u':
+		return true
+	default:
+		return false
+	}
+}
+
+func azureCAFResourceTokens(name string) []string {
 	normalized := strings.ToLower(strings.TrimSpace(name))
 	for _, prefix := range []string{"azurerm_", "azure_", "azapi_"} {
 		if strings.HasPrefix(normalized, prefix) {
@@ -269,7 +412,16 @@ func azureCAFResourceDisambiguationSource(name string) string {
 			break
 		}
 	}
-	return toLowerAlnum(normalized)
+
+	tokens := []string{}
+	for _, token := range strings.Split(normalized, "_") {
+		token = toLowerAlnum(token)
+		if token == "" {
+			continue
+		}
+		tokens = append(tokens, token)
+	}
+	return tokens
 }
 
 func azureCAFIsRegionalScope(scope string) bool {
