@@ -26,3 +26,23 @@ func TestResolveCloudPrecedence(t *testing.T) {
 		t.Fatalf("expected default cloud (%q), got %q", naming.CloudAWS, resolved)
 	}
 }
+
+func TestResolveUseAzureCAFAcronymsPrecedence(t *testing.T) {
+	base := providerConfigModel{UseAzureCAFAcronyms: types.BoolValue(true)}
+	override := providerConfigModel{UseAzureCAFAcronyms: types.BoolValue(false)}
+
+	resolved := resolveUseAzureCAFAcronyms(types.BoolNull(), base, true, override, true)
+	if resolved {
+		t.Fatalf("expected override value to win (false), got %t", resolved)
+	}
+
+	resolved = resolveUseAzureCAFAcronyms(types.BoolValue(true), base, true, providerConfigModel{}, false)
+	if !resolved {
+		t.Fatalf("expected top-level value to win (true), got %t", resolved)
+	}
+
+	resolved = resolveUseAzureCAFAcronyms(types.BoolNull(), providerConfigModel{}, false, providerConfigModel{}, false)
+	if resolved {
+		t.Fatalf("expected default value (false), got %t", resolved)
+	}
+}

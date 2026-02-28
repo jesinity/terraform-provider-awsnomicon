@@ -17,6 +17,34 @@ func TestDefaultCloudDefaultsAzure(t *testing.T) {
 			t.Fatalf("resource %q has acronym %q, expected 4 characters", resource, acronym)
 		}
 	}
+
+	if got := defaults.ResourceAcronyms["azurerm_storage_account"]; got != "stac" {
+		t.Fatalf("expected normalized storage account acronym %q, got %q", "stac", got)
+	}
+
+	if got := defaults.ResourceAcronyms["azurerm_resource_group"]; got != "regr" {
+		t.Fatalf("expected normalized resource group acronym %q, got %q", "regr", got)
+	}
+}
+
+func TestDefaultCloudDefaultsAzureUseCAFAcronyms(t *testing.T) {
+	defaults, err := DefaultCloudDefaultsWithOptions(CloudAzure, CloudDefaultsOptions{UseAzureCAFAcronyms: true})
+	if err != nil {
+		t.Fatalf("unexpected error loading Azure defaults: %v", err)
+	}
+
+	if got := defaults.ResourceAcronyms["azurerm_storage_account"]; got != "st" {
+		t.Fatalf("expected CAF storage account acronym %q, got %q", "st", got)
+	}
+
+	if got := defaults.ResourceAcronyms["azurerm_resource_group"]; got != "rg" {
+		t.Fatalf("expected CAF resource group acronym %q, got %q", "rg", got)
+	}
+
+	// Some entries do not provide CAF slugs; keep a non-empty compatibility fallback.
+	if got := defaults.ResourceAcronyms["general"]; got != "gene" {
+		t.Fatalf("expected fallback acronym %q for resource %q, got %q", "gene", "general", got)
+	}
 }
 
 func TestBuildNameAzureStorageAccountSelectsStraightStyle(t *testing.T) {

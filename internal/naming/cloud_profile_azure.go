@@ -25,9 +25,14 @@ type azureCAFResourceDefinition struct {
 }
 
 type azureCloudProfile struct {
-	defaultsOnce sync.Once
-	defaults     CloudDefaults
-	defaultsErr  error
+	normalizedDefaults azureCloudDefaultsCache
+	cafDefaults        azureCloudDefaultsCache
+}
+
+type azureCloudDefaultsCache struct {
+	once     sync.Once
+	defaults CloudDefaults
+	err      error
 }
 
 func newAzureCloudProfile() CloudProfile {
@@ -38,44 +43,58 @@ func (*azureCloudProfile) Cloud() string {
 	return CloudAzure
 }
 
-func (p *azureCloudProfile) Defaults() (CloudDefaults, error) {
-	p.defaultsOnce.Do(func() {
-		var definitions []azureCAFResourceDefinition
-		if err := json.Unmarshal(azureCAFResourceDefinitionJSON, &definitions); err != nil {
-			p.defaultsErr = fmt.Errorf("decode Azure CAF resource definitions: %w", err)
-			return
-		}
+func (p *azureCloudProfile) Defaults(options CloudDefaultsOptions) (CloudDefaults, error) {
+	useCAFAcronyms := options.UseAzureCAFAcronyms
+	cache := &p.normalizedDefaults
+	if useCAFAcronyms {
+		cache = &p.cafDefaults
+	}
 
-		acronyms := make(map[string]string, len(definitions))
-		styleOverrides := make(map[string][]string, len(definitions))
-		constraints := make(map[string]ResourceConstraint, len(definitions))
-		regionalResources := make(map[string]bool, len(definitions))
-
-		for _, definition := range definitions {
-			name := strings.ToLower(strings.TrimSpace(definition.Name))
-			if name == "" {
-				continue
-			}
-
-			acronyms[name] = azureCAFResourceAcronym(definition.Slug, definition.Name)
-			styleOverrides[name] = azureCAFStyleOverrides(definition.Lowercase, definition.Dashes)
-			regionalResources[name] = azureCAFIsRegionalScope(definition.Scope)
-			constraints[name] = azureCAFConstraint(definition)
-		}
-
-		p.defaults = CloudDefaults{
-			RegionMap:              map[string]string{},
-			ResourceAcronyms:       acronyms,
-			ResourceStyleOverrides: styleOverrides,
-			ResourceConstraints:    constraints,
-			RegionalResources:      regionalResources,
-		}
+	cache.once.Do(func() {
+		cache.defaults, cache.err = loadAzureCloudDefaults(useCAFAcronyms)
 	})
 
-	if p.defaultsErr != nil {
-		return CloudDefaults{}, p.defaultsErr
+	if cache.err != nil {
+		return CloudDefaults{}, cache.err
 	}
-	return copyCloudDefaults(p.defaults), nil
+	return copyCloudDefaults(cache.defaults), nil
+}
+
+func loadAzureCloudDefaults(useCAFAcronyms bool) (CloudDefaults, error) {
+	var definitions []azureCAFResourceDefinition
+	if err := json.Unmarshal(azureCAFResourceDefinitionJSON, &definitions); err != nil {
+		return CloudDefaults{}, fmt.Errorf("decode Azure CAF resource definitions: %w", err)
+	}
+
+	acronyms := make(map[string]string, len(definitions))
+	styleOverrides := make(map[string][]string, len(definitions))
+	constraints := make(map[string]ResourceConstraint, len(definitions))
+	regionalResources := make(map[string]bool, len(definitions))
+
+	for _, definition := range definitions {
+		name := strings.ToLower(strings.TrimSpace(definition.Name))
+		if name == "" {
+			continue
+		}
+
+		acronym := azureCAFResourceAcronym(definition.Slug, definition.Name)
+		if useCAFAcronyms {
+			acronym = azureCAFOfficialResourceAcronym(definition.Slug, definition.Name)
+		}
+
+		acronyms[name] = acronym
+		styleOverrides[name] = azureCAFStyleOverrides(definition.Lowercase, definition.Dashes)
+		regionalResources[name] = azureCAFIsRegionalScope(definition.Scope)
+		constraints[name] = azureCAFConstraint(definition)
+	}
+
+	return CloudDefaults{
+		RegionMap:              map[string]string{},
+		ResourceAcronyms:       acronyms,
+		ResourceStyleOverrides: styleOverrides,
+		ResourceConstraints:    constraints,
+		RegionalResources:      regionalResources,
+	}, nil
 }
 
 func azureCAFConstraint(definition azureCAFResourceDefinition) ResourceConstraint {
@@ -126,7 +145,66 @@ func azureCAFResourceAcronym(slug, name string) string {
 	for len(base) < 4 {
 		base += "x"
 	}
+	acronym := base[:4]
+	if strings.HasSuffix(acronym, "az") {
+		return azureCAFResourceSemanticAcronym(name)
+	}
+	return acronym
+}
+
+func azureCAFOfficialResourceAcronym(slug, name string) string {
+	base := toLowerAlnum(slug)
+	if base != "" {
+		return base
+	}
+	// Keep compatibility for definitions that do not publish a CAF slug.
+	return azureCAFResourceAcronym(slug, name)
+}
+
+func azureCAFResourceSemanticAcronym(name string) string {
+	normalized := strings.ToLower(strings.TrimSpace(name))
+	for _, prefix := range []string{"azurerm_", "azure_", "azapi_"} {
+		if strings.HasPrefix(normalized, prefix) {
+			normalized = strings.TrimPrefix(normalized, prefix)
+			break
+		}
+	}
+
+	tokens := []string{}
+	for _, token := range strings.Split(normalized, "_") {
+		token = toLowerAlnum(token)
+		if token == "" {
+			continue
+		}
+		tokens = append(tokens, token)
+	}
+
+	var base string
+	switch {
+	case len(tokens) >= 2:
+		last := tokens[len(tokens)-1]
+		prev := tokens[len(tokens)-2]
+		base = firstN(prev, 2) + firstN(last, 2)
+	case len(tokens) == 1:
+		base = firstN(tokens[0], 4)
+	default:
+		base = firstN(toLowerAlnum(name), 4)
+	}
+
+	for len(base) < 4 {
+		base += "x"
+	}
 	return base[:4]
+}
+
+func firstN(value string, n int) string {
+	if n <= 0 || value == "" {
+		return ""
+	}
+	if len(value) <= n {
+		return value
+	}
+	return value[:n]
 }
 
 func azureCAFIsRegionalScope(scope string) bool {

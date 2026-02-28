@@ -4,8 +4,9 @@ Comprehensive Azure defaults used by `cloud = "azure"`.
 All resource identifiers come from the Azure CAF provider resource catalog (`resourceDefinition.json`).
 
 - Total resource types: 395
-- Acronym policy in Sigil Azure mode: fixed 4-character acronym per resource
-- Acronyms are derived from CAF slugs, then normalized to 4 characters (for example, storage account `st` becomes `staz`)
+- Acronym policy in Sigil Azure mode: defaults to fixed 4-character acronyms
+- Default acronyms are derived from CAF slugs, then normalized to 4 characters (for example, storage account `st` becomes `stac`)
+- Optional `use_azure_caf_acronyms = true` to use CAF slugs directly as defaults
 - Constraints source: Azure CAF definitions (which mirror Azure ARM naming restrictions)
 
 References:
@@ -18,15 +19,15 @@ References:
 | `aks_node_pool_linux` | `npla` | `parent` | `regional` | 1 | 12 | `false` | `false` | `^[a-z][0-9a-z]{0,11}$` | `pascal, camel, straight` |
 | `aks_node_pool_windows` | `npwa` | `parent` | `regional` | 1 | 6 | `false` | `false` | `^[a-z][0-9a-z]{0,5}$` | `pascal, camel, straight` |
 | `azurerm_aadb2c_directory` | `aadb` | `global` | `non-regional` | 1 | 75 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9-]{0,73}[a-zA-Z0-9]$` | `dashed, pascaldashed, pascal, camel, straight` |
-| `azurerm_analysis_services_server` | `asaz` | `resourceGroup` | `regional` | 3 | 63 | `false` | `true` | `^[a-z][a-z0-9]{2,62}$` | `straight` |
-| `azurerm_api_management` | `apim` | `global` | `non-regional` | 1 | 50 | `true` | `false` | `^[a-zA-Z][a-zA-Z0-9-]{0,48}[a-zA-Z0-9\|]$` | `dashed, pascaldashed, pascal, camel, straight` |
-| `azurerm_api_management_api` | `apim` | `global` | `non-regional` | 1 | 80 | `true` | `false` | `^[a-zA-Z][a-zA-Z0-9-]{0,78}[a-zA-Z0-9\|]$` | `dashed, pascaldashed, pascal, camel, straight` |
-| `azurerm_api_management_api_operation_tag` | `apim` | `global` | `non-regional` | 1 | 80 | `true` | `false` | `^[a-zA-Z][a-zA-Z0-9-]{0,78}[a-zA-Z0-9\|]$` | `dashed, pascaldashed, pascal, camel, straight` |
-| `azurerm_api_management_backend` | `apim` | `global` | `non-regional` | 1 | 80 | `true` | `false` | `^[a-zA-Z][a-zA-Z0-9-]{0,78}[a-zA-Z0-9\|]$` | `dashed, pascaldashed, pascal, camel, straight` |
-| `azurerm_api_management_certificate` | `apim` | `global` | `non-regional` | 1 | 80 | `true` | `false` | `^[a-zA-Z][a-zA-Z0-9-]{0,78}[a-zA-Z0-9\|]$` | `dashed, pascaldashed, pascal, camel, straight` |
-| `azurerm_api_management_gateway` | `apim` | `global` | `non-regional` | 1 | 80 | `true` | `false` | `^[a-zA-Z][a-zA-Z0-9-]{0,78}[a-zA-Z0-9\|]$` | `dashed, pascaldashed, pascal, camel, straight` |
-| `azurerm_api_management_group` | `apim` | `global` | `non-regional` | 1 | 80 | `true` | `false` | `^[a-zA-Z][a-zA-Z0-9-]{0,78}[a-zA-Z0-9\|]$` | `dashed, pascaldashed, pascal, camel, straight` |
-| `azurerm_api_management_logger` | `apim` | `global` | `non-regional` | 1 | 80 | `true` | `false` | `^[a-zA-Z][a-zA-Z0-9-]{0,78}[a-zA-Z0-9\|]$` | `dashed, pascaldashed, pascal, camel, straight` |
+| `azurerm_analysis_services_server` | `sese` | `resourceGroup` | `regional` | 3 | 63 | `false` | `true` | `^[a-z][a-z0-9]{2,62}$` | `straight` |
+| `azurerm_api_management` | `apim` | `global` | `non-regional` | 1 | 50 | `true` | `false` | `^[a-zA-Z][a-zA-Z0-9-]{0,48}[a-zA-Z0-9|]$` | `dashed, pascaldashed, pascal, camel, straight` |
+| `azurerm_api_management_api` | `apim` | `global` | `non-regional` | 1 | 80 | `true` | `false` | `^[a-zA-Z][a-zA-Z0-9-]{0,78}[a-zA-Z0-9|]$` | `dashed, pascaldashed, pascal, camel, straight` |
+| `azurerm_api_management_api_operation_tag` | `apim` | `global` | `non-regional` | 1 | 80 | `true` | `false` | `^[a-zA-Z][a-zA-Z0-9-]{0,78}[a-zA-Z0-9|]$` | `dashed, pascaldashed, pascal, camel, straight` |
+| `azurerm_api_management_backend` | `apim` | `global` | `non-regional` | 1 | 80 | `true` | `false` | `^[a-zA-Z][a-zA-Z0-9-]{0,78}[a-zA-Z0-9|]$` | `dashed, pascaldashed, pascal, camel, straight` |
+| `azurerm_api_management_certificate` | `apim` | `global` | `non-regional` | 1 | 80 | `true` | `false` | `^[a-zA-Z][a-zA-Z0-9-]{0,78}[a-zA-Z0-9|]$` | `dashed, pascaldashed, pascal, camel, straight` |
+| `azurerm_api_management_gateway` | `apim` | `global` | `non-regional` | 1 | 80 | `true` | `false` | `^[a-zA-Z][a-zA-Z0-9-]{0,78}[a-zA-Z0-9|]$` | `dashed, pascaldashed, pascal, camel, straight` |
+| `azurerm_api_management_group` | `apim` | `global` | `non-regional` | 1 | 80 | `true` | `false` | `^[a-zA-Z][a-zA-Z0-9-]{0,78}[a-zA-Z0-9|]$` | `dashed, pascaldashed, pascal, camel, straight` |
+| `azurerm_api_management_logger` | `apim` | `global` | `non-regional` | 1 | 80 | `true` | `false` | `^[a-zA-Z][a-zA-Z0-9-]{0,78}[a-zA-Z0-9|]$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_api_management_service` | `apim` | `global` | `non-regional` | 1 | 50 | `true` | `false` | `^[a-z][a-zA-Z0-9-]{0,48}[a-zA-Z0-9]$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_app_configuration` | `appc` | `resourceGroup` | `regional` | 5 | 50 | `true` | `false` | `^[a-zA-Z0-9-]{5,50}$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_app_service` | `appa` | `global` | `non-regional` | 2 | 60 | `true` | `false` | `^[0-9A-Za-z][0-9A-Za-z-]{0,58}[0-9a-zA-Z]$` | `dashed, pascaldashed, pascal, camel, straight` |
@@ -36,7 +37,7 @@ References:
 | `azurerm_application_insights` | `appi` | `resourceGroup` | `regional` | 1 | 260 | `true` | `false` | `^[^%&\\?/. ][^%&\\?/]{0,258}[^%&\\?/. ]$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_application_insights_web_test` | `appi` | `resourceGroup` | `regional` | 1 | 64 | `true` | `false` | `^[a-zA-Z][a-zA-Z0-9- ]{0,62}[a-zA-Z0-9]$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_application_security_group` | `asga` | `resourceGroup` | `regional` | 1 | 80 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9-._]{0,78}[a-zA-Z0-9_]$` | `dashed, pascaldashed, pascal, camel, straight` |
-| `azurerm_automation_account` | `aaaz` | `resourceGroup` | `regional` | 6 | 50 | `true` | `false` | `^[a-zA-Z][a-zA-Z0-9-]{4,48}[a-zA-Z0-9]$` | `dashed, pascaldashed, pascal, camel, straight` |
+| `azurerm_automation_account` | `auac` | `resourceGroup` | `regional` | 6 | 50 | `true` | `false` | `^[a-zA-Z][a-zA-Z0-9-]{4,48}[a-zA-Z0-9]$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_automation_certificate` | `aace` | `parent` | `regional` | 1 | 128 | `true` | `false` | `^[^<>*%:.?\\+\\/]{0,127}[^<>*%:.?\\+\\/ ]$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_automation_credential` | `aacr` | `parent` | `regional` | 1 | 128 | `true` | `false` | `^[^<>*%:.?\\+\\/]{0,127}[^<>*%:.?\\+\\/ ]$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_automation_hybrid_runbook_worker_group` | `aahw` | `parent` | `regional` | 1 | 128 | `true` | `false` | `^([^<>*%&:\\?.+/#\\s]?[ ]?){0,127}[^<>*%&:\\?.+/#\\s]$` | `dashed, pascaldashed, pascal, camel, straight` |
@@ -46,12 +47,12 @@ References:
 | `azurerm_automation_variable` | `aava` | `parent` | `regional` | 1 | 128 | `true` | `false` | `^[^<>*%:.?\\+\\/]{0,127}[^<>*%:.?\\+\\/ ]$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_availability_set` | `avai` | `resourceGroup` | `regional` | 1 | 80 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9-_.]{0,78}[a-zA-Z0-9_]$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_bastion_host` | `bast` | `parent` | `regional` | 1 | 80 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9-._]{0,78}[a-zA-Z0-9_]$` | `dashed, pascaldashed, pascal, camel, straight` |
-| `azurerm_batch_account` | `baaz` | `region` | `regional` | 3 | 24 | `false` | `true` | `^[a-z0-9]{3,24}$` | `straight` |
+| `azurerm_batch_account` | `baac` | `region` | `regional` | 3 | 24 | `false` | `true` | `^[a-z0-9]{3,24}$` | `straight` |
 | `azurerm_batch_application` | `baap` | `parent` | `regional` | 1 | 64 | `true` | `false` | `^[a-zA-Z0-9_-]{1,64}$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_batch_certificate` | `bace` | `parent` | `regional` | 5 | 45 | `true` | `false` | `^[a-zA-Z0-9_-]{5,45}$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_batch_pool` | `bapo` | `parent` | `regional` | 3 | 24 | `true` | `false` | `^[a-zA-Z0-9_-]{1,24}$` | `dashed, pascaldashed, pascal, camel, straight` |
-| `azurerm_bot_channel_directline` | `botl` | `parent` | `regional` | 2 | 64 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9-_.]{1,63}$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_bot_channel_Email` | `botm` | `parent` | `regional` | 2 | 64 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9-_.]{1,63}$` | `dashed, pascaldashed, pascal, camel, straight` |
+| `azurerm_bot_channel_directline` | `botl` | `parent` | `regional` | 2 | 64 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9-_.]{1,63}$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_bot_channel_ms_teams` | `bott` | `parent` | `regional` | 2 | 64 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9-_.]{1,63}$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_bot_channel_slack` | `bots` | `parent` | `regional` | 2 | 64 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9-_.]{1,63}$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_bot_channels_registration` | `botc` | `parent` | `regional` | 2 | 64 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9-_.]{1,63}$` | `dashed, pascaldashed, pascal, camel, straight` |
@@ -76,11 +77,11 @@ References:
 | `azurerm_communication_service` | `acsa` | `parent` | `regional` | 1 | 64 | `true` | `false` | `^[a-zA-Z0-9_-]{1,64}$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_consumption_budget_resource_group` | `acbr` | `resourceGroup` | `regional` | 1 | 63 | `true` | `false` | `^[a-zA-Z0-9-_]{1,63}$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_consumption_budget_subscription` | `acbs` | `subscription` | `non-regional` | 1 | 63 | `true` | `false` | `^[a-zA-Z0-9-_]{1,63}$` | `dashed, pascaldashed, pascal, camel, straight` |
-| `azurerm_container_app` | `caaz` | `resourceGroup` | `regional` | 1 | 32 | `true` | `true` | `^[a-z0-9][a-z0-9-]{0,30}[a-z0-9]$` | `dashed, straight` |
+| `azurerm_containerGroups` | `cont` | `resourceGroup` | `regional` | 1 | 63 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9]$` | `dashed, pascaldashed, pascal, camel, straight` |
+| `azurerm_container_app` | `coap` | `resourceGroup` | `regional` | 1 | 32 | `true` | `true` | `^[a-z0-9][a-z0-9-]{0,30}[a-z0-9]$` | `dashed, straight` |
 | `azurerm_container_app_environment` | `caea` | `resourceGroup` | `regional` | 1 | 60 | `true` | `false` | `^[0-9A-Za-z][0-9A-Za-z-]{0,58}[0-9a-zA-Z]$` | `dashed, pascaldashed, pascal, camel, straight` |
-| `azurerm_container_registry` | `craz` | `resourceGroup` | `regional` | 1 | 63 | `false` | `true` | `^[a-zA-Z0-9]{1,63}$` | `straight` |
+| `azurerm_container_registry` | `core` | `resourceGroup` | `regional` | 1 | 63 | `false` | `true` | `^[a-zA-Z0-9]{1,63}$` | `straight` |
 | `azurerm_container_registry_webhook` | `crwh` | `resourceGroup` | `regional` | 1 | 50 | `false` | `false` | `^[a-zA-Z0-9]{1,50}$` | `pascal, camel, straight` |
-| `azurerm_containerGroups` | `cgaz` | `resourceGroup` | `regional` | 1 | 63 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9]$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_cosmosdb_account` | `cosm` | `resourceGroup` | `regional` | 1 | 44 | `true` | `true` | `^[a-z0-9][a-z0-9-]{0,42}[a-z0-9]$` | `dashed, straight` |
 | `azurerm_custom_provider` | `prov` | `resourceGroup` | `regional` | 3 | 64 | `true` | `false` | `^[^&%?\\/]{2,63}[^&%.?\\/ ]$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_dashboard` | `dsba` | `parent` | `regional` | 3 | 160 | `true` | `false` | `^[a-zA-Z0-9-]{3,160}$` | `dashed, pascaldashed, pascal, camel, straight` |
@@ -120,9 +121,9 @@ References:
 | `azurerm_database_migration_project` | `migr` | `parent` | `regional` | 2 | 57 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9-_.]{1,56}$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_database_migration_service` | `dmsa` | `resourceGroup` | `regional` | 2 | 62 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9-_.]{1,61}$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_databricks_workspace` | `dbwa` | `resourceGroup` | `regional` | 3 | 64 | `true` | `false` | `^[a-zA-Z0-9-_]{3,64}$` | `dashed, pascaldashed, pascal, camel, straight` |
-| `azurerm_dedicated_host` | `dhaz` | `resourceGroup` | `regional` | 1 | 80 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9-_.]{0,78}[a-zA-Z0-9_]$` | `dashed, pascaldashed, pascal, camel, straight` |
+| `azurerm_dedicated_host` | `deho` | `resourceGroup` | `regional` | 1 | 80 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9-_.]{0,78}[a-zA-Z0-9_]$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_dedicated_host_group` | `dhga` | `resourceGroup` | `regional` | 1 | 80 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9-_.]{0,78}[a-zA-Z0-9_]$` | `dashed, pascaldashed, pascal, camel, straight` |
-| `azurerm_dev_center` | `dcaz` | `resourceGroup` | `regional` | 3 | 26 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9-]{1,24}[a-zA-Z0-9]$` | `dashed, pascaldashed, pascal, camel, straight` |
+| `azurerm_dev_center` | `dece` | `resourceGroup` | `regional` | 3 | 26 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9-]{1,24}[a-zA-Z0-9]$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_dev_center_catalog` | `dcca` | `parent` | `regional` | 3 | 63 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9]$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_dev_center_dev_box_definition` | `dcdb` | `parent` | `regional` | 3 | 63 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9]$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_dev_center_environment_type` | `dcet` | `parent` | `regional` | 3 | 63 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9]$` | `dashed, pascaldashed, pascal, camel, straight` |
@@ -160,15 +161,15 @@ References:
 | `azurerm_express_route_circuit` | `erca` | `resourceGroup` | `regional` | 1 | 80 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9-._]{0,78}[a-zA-Z0-9_]$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_express_route_gateway` | `ergw` | `resourceGroup` | `regional` | 1 | 80 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9-._]{0,78}[a-zA-Z0-9_]$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_federated_identity_credential` | `fedc` | `parent` | `regional` | 3 | 120 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9_-]{2,119}$` | `dashed, pascaldashed, pascal, camel, straight` |
-| `azurerm_firewall` | `fwaz` | `resourceGroup` | `regional` | 1 | 80 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9-._]{0,78}[a-zA-Z0-9_]$` | `dashed, pascaldashed, pascal, camel, straight` |
+| `azurerm_firewall` | `fire` | `resourceGroup` | `regional` | 1 | 80 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9-._]{0,78}[a-zA-Z0-9_]$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_firewall_application_rule_collection` | `fwap` | `parent` | `regional` | 1 | 80 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9\\-\\._]{0,78}[a-zA-Z0-9_]$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_firewall_ip_configuration` | `fwip` | `resourceGroup` | `regional` | 1 | 80 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9\\-\\._]{0,78}[a-zA-Z0-9_]$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_firewall_nat_rule_collection` | `fwna` | `parent` | `regional` | 1 | 80 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9\\-\\._]{0,78}[a-zA-Z0-9_]$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_firewall_network_rule_collection` | `fwne` | `parent` | `regional` | 1 | 80 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9\\-\\._]{0,78}[a-zA-Z0-9_]$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_firewall_policy` | `afwp` | `resourceGroup` | `regional` | 1 | 80 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9-._]{0,78}[a-zA-Z0-9_]$` | `dashed, pascaldashed, pascal, camel, straight` |
-| `azurerm_frontdoor` | `fdaz` | `global` | `non-regional` | 5 | 64 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9-]{3,62}[a-zA-Z0-9]$` | `dashed, pascaldashed, pascal, camel, straight` |
+| `azurerm_frontdoor` | `fron` | `global` | `non-regional` | 5 | 64 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9-]{3,62}[a-zA-Z0-9]$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_frontdoor_firewall_policy` | `fdfw` | `global` | `non-regional` | 1 | 80 | `false` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9]{0,78}[a-zA-Z0-9]$` | `pascal, camel, straight` |
-| `azurerm_function_app` | `faaz` | `global` | `non-regional` | 2 | 60 | `true` | `false` | `^[0-9A-Za-z][0-9A-Za-z-]{0,58}[0-9a-zA-Z]$` | `dashed, pascaldashed, pascal, camel, straight` |
+| `azurerm_function_app` | `fuap` | `global` | `non-regional` | 2 | 60 | `true` | `false` | `^[0-9A-Za-z][0-9A-Za-z-]{0,58}[0-9a-zA-Z]$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_function_app_slot` | `fasa` | `global` | `non-regional` | 2 | 59 | `true` | `false` | `^[0-9A-Za-z][0-9A-Za-z-]{0,57}[0-9a-zA-Z]$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_hdinsight_hadoop_cluster` | `hado` | `global` | `non-regional` | 3 | 59 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9-]{1,57}[a-zA-Z0-9]$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_hdinsight_hbase_cluster` | `hbas` | `global` | `non-regional` | 3 | 59 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9-]{1,57}[a-zA-Z0-9]$` | `dashed, pascaldashed, pascal, camel, straight` |
@@ -196,16 +197,16 @@ References:
 | `azurerm_iothub_dps_shared_access_policy` | `dpss` | `parent` | `regional` | 1 | 64 | `true` | `false` | `^[a-zA-Z0-9-._]{1,64}$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_iothub_shared_access_policy` | `iots` | `parent` | `regional` | 1 | 64 | `true` | `false` | `^[a-zA-Z0-9-._]{1,64}$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_ip_group` | `ipgr` | `resourceGroup` | `regional` | 1 | 80 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9-._]{0,78}[a-zA-Z0-9_]$` | `dashed, pascaldashed, pascal, camel, straight` |
-| `azurerm_key_vault` | `kvaz` | `global` | `non-regional` | 3 | 24 | `true` | `false` | `^[a-zA-Z][a-zA-Z0-9-]{1,22}[a-zA-Z0-9]$` | `dashed, pascaldashed, pascal, camel, straight` |
+| `azurerm_key_vault` | `keva` | `global` | `non-regional` | 3 | 24 | `true` | `false` | `^[a-zA-Z][a-zA-Z0-9-]{1,22}[a-zA-Z0-9]$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_key_vault_certificate` | `kvca` | `parent` | `regional` | 1 | 127 | `true` | `false` | `^[a-zA-Z0-9-]{1,127}$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_key_vault_key` | `kvka` | `parent` | `regional` | 1 | 127 | `true` | `false` | `^[a-zA-Z0-9-]{1,127}$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_key_vault_secret` | `kvsa` | `parent` | `regional` | 1 | 127 | `true` | `false` | `^[a-zA-Z0-9-]{1,127}$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_kubernetes_cluster` | `aksa` | `resourceGroup` | `regional` | 1 | 63 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9-_]{0,61}[a-zA-Z0-9]$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_kubernetes_fleet_manager` | `flee` | `resourceGroup` | `regional` | 1 | 63 | `true` | `true` | `^[0-9a-z]([0-9a-z-]{0,61}[0-9a-z])?$` | `dashed, straight` |
-| `azurerm_kusto_cluster` | `kcaz` | `global` | `non-regional` | 4 | 22 | `false` | `false` | `^[a-z][a-z0-9]{3,21}$` | `pascal, camel, straight` |
+| `azurerm_kusto_cluster` | `kucl` | `global` | `non-regional` | 4 | 22 | `false` | `false` | `^[a-z][a-z0-9]{3,21}$` | `pascal, camel, straight` |
 | `azurerm_kusto_database` | `kdba` | `parent` | `regional` | 1 | 260 | `true` | `false` | `^[a-zA-Z0-9- .]{1,260}$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_kusto_eventhub_data_connection` | `kehc` | `parent` | `regional` | 1 | 40 | `true` | `false` | `^[a-zA-Z0-9- .]{1,40}$` | `dashed, pascaldashed, pascal, camel, straight` |
-| `azurerm_lb` | `lbaz` | `resourceGroup` | `regional` | 1 | 80 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9-._]{0,78}[a-zA-Z0-9_]$` | `dashed, pascaldashed, pascal, camel, straight` |
+| `azurerm_lb` | `lbxx` | `resourceGroup` | `regional` | 1 | 80 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9-._]{0,78}[a-zA-Z0-9_]$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_lb_backend_address_pool` | `adta` | `subscription` | `non-regional` | 4 | 63 | `true` | `false` | `^[a-zA-Z0-9_-]{1,63}$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_lb_backend_pool` | `adta` | `subscription` | `non-regional` | 4 | 63 | `true` | `false` | `^[a-zA-Z0-9_-]{1,63}$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_lb_nat_pool` | `adta` | `subscription` | `non-regional` | 4 | 63 | `true` | `false` | `^[a-zA-Z0-9_-]{1,63}$` | `dashed, pascaldashed, pascal, camel, straight` |
@@ -213,10 +214,10 @@ References:
 | `azurerm_lb_outbound_rule` | `adta` | `subscription` | `non-regional` | 4 | 63 | `true` | `false` | `^[a-zA-Z0-9_-]{1,63}$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_lb_probe` | `adta` | `subscription` | `non-regional` | 4 | 63 | `true` | `false` | `^[a-zA-Z0-9_-]{1,63}$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_lb_rule` | `adta` | `subscription` | `non-regional` | 4 | 63 | `true` | `false` | `^[a-zA-Z0-9_-]{1,63}$` | `dashed, pascaldashed, pascal, camel, straight` |
-| `azurerm_linux_virtual_machine` | `vmaz` | `resourceGroup` | `regional` | 1 | 64 | `true` | `false` | `^[^\\/\"\\[\\]:\|<>+=;,?*@&_][^\\/\"\\[\\]:\|<>+=;,?*@&]{0,62}[^\\/\"\\[\\]:\|<>+=;,?*@&.-]$` | `dashed, pascaldashed, pascal, camel, straight` |
-| `azurerm_linux_virtual_machine_scale_set` | `vmss` | `resourceGroup` | `regional` | 1 | 64 | `true` | `false` | `^[^\\/\"\\[\\]:\|<>+=;,?*@&_][^\\/\"\\[\\]:\|<>+=;,?*@&]{0,62}[^\\/\"\\[\\]:\|<>+=;,?*@&.-]$` | `dashed, pascaldashed, pascal, camel, straight` |
+| `azurerm_linux_virtual_machine` | `vima` | `resourceGroup` | `regional` | 1 | 64 | `true` | `false` | `^[^\\/\"\\[\\]:|<>+=;,?*@&_][^\\/\"\\[\\]:|<>+=;,?*@&]{0,62}[^\\/\"\\[\\]:|<>+=;,?*@&.-]$` | `dashed, pascaldashed, pascal, camel, straight` |
+| `azurerm_linux_virtual_machine_scale_set` | `vmss` | `resourceGroup` | `regional` | 1 | 64 | `true` | `false` | `^[^\\/\"\\[\\]:|<>+=;,?*@&_][^\\/\"\\[\\]:|<>+=;,?*@&]{0,62}[^\\/\"\\[\\]:|<>+=;,?*@&.-]$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_linux_web_app` | `lwap` | `global` | `non-regional` | 2 | 60 | `true` | `false` | `^[0-9A-Za-z][0-9A-Za-z-]{0,58}[0-9a-zA-Z]$` | `dashed, pascaldashed, pascal, camel, straight` |
-| `azurerm_load_test` | `load` | `global` | `non-regional` | 1 | 64 | `true` | `false` | `^[a-zA-Z][a-zA-Z0-9-_]{0,62}[a-zA-Z0-9\|]$` | `dashed, pascaldashed, pascal, camel, straight` |
+| `azurerm_load_test` | `load` | `global` | `non-regional` | 1 | 64 | `true` | `false` | `^[a-zA-Z][a-zA-Z0-9-_]{0,62}[a-zA-Z0-9|]$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_local_network_gateway` | `lgwa` | `resourceGroup` | `regional` | 1 | 80 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9-._]{0,78}[a-zA-Z0-9_]$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_log_analytics_cluster` | `logc` | `resourceGroup` | `regional` | 4 | 63 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9-]{2,61}[a-zA-Z0-9]$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_log_analytics_query_pack` | `laqp` | `parent` | `regional` | 4 | 63 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9-]{2,61}[a-zA-Z0-9]$` | `dashed, pascaldashed, pascal, camel, straight` |
@@ -239,13 +240,13 @@ References:
 | `azurerm_mariadb_firewall_rule` | `mari` | `parent` | `regional` | 1 | 128 | `true` | `false` | `^[a-zA-Z0-9-_]{1,128}$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_mariadb_server` | `mari` | `global` | `non-regional` | 3 | 63 | `true` | `false` | `^[a-z0-9][a-zA-Z0-9-]{1,61}[a-z0-9]$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_mariadb_virtual_network_rule` | `mari` | `parent` | `regional` | 1 | 128 | `true` | `false` | `^[a-zA-Z0-9-_]{1,128}$` | `dashed, pascaldashed, pascal, camel, straight` |
-| `azurerm_monitor_action_group` | `amag` | `resourceGroup` | `regional` | 1 | 260 | `true` | `false` | `^[^\|:<>+#%&\\?/]{0,259}[^\|:<>+#%&\\?/. ]$` | `dashed, pascaldashed, pascal, camel, straight` |
+| `azurerm_monitor_action_group` | `amag` | `resourceGroup` | `regional` | 1 | 260 | `true` | `false` | `^[^|:<>+#%&\\?/]{0,259}[^|:<>+#%&\\?/. ]$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_monitor_activity_log_alert` | `adfm` | `parent` | `regional` | 1 | 260 | `true` | `false` | `^[^<>*%:&?#\\+\\/]{0,259}[^<>*%:&.?#\\+\\/]$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_monitor_autoscale_setting` | `amas` | `resourceGroup` | `regional` | 2 | 64 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9-]{0,62}[a-zA-Z0-9]$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_monitor_data_collection_endpoint` | `dcea` | `resourceGroup` | `regional` | 3 | 44 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9-]{1,42}[a-zA-Z0-9]$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_monitor_data_collection_rule` | `dcra` | `resourceGroup` | `regional` | 3 | 44 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9-]{1,42}[a-zA-Z0-9]$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_monitor_diagnostic_setting` | `amds` | `parent` | `regional` | 1 | 260 | `true` | `false` | `^[a-zA-Z0-9 ][a-zA-Z0-9-._ ]{0,258}[a-zA-Z0-9_]$` | `dashed, pascaldashed, pascal, camel, straight` |
-| `azurerm_monitor_metric_alert` | `maaz` | `resourceGroup` | `regional` | 1 | 251 | `true` | `false` | `^[^<>*%&:\\?+/#@{}]{0,250}[^<>*%&:\\?+/#@{}. ]$` | `dashed, pascaldashed, pascal, camel, straight` |
+| `azurerm_monitor_metric_alert` | `meal` | `resourceGroup` | `regional` | 1 | 251 | `true` | `false` | `^[^<>*%&:\\?+/#@{}]{0,250}[^<>*%&:\\?+/#@{}. ]$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_monitor_private_link_scope` | `ampl` | `resourceGroup` | `regional` | 1 | 255 | `true` | `false` | `^[0-9A-Za-z-._()]{0,254}[0-9A-Za-z-_()]$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_monitor_scheduled_query_rules_alert` | `schq` | `resourceGroup` | `regional` | 1 | 260 | `true` | `false` | `^[^<>*%&:\\?/#{}]{0,259}[^<>*%&:\\?/#{}. ]$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_mssql_database` | `sqld` | `parent` | `regional` | 1 | 128 | `true` | `false` | `^[^<>*%:.?\\+\\/]{1,127}[^<>*%:.?\\+\\/ ]$` | `dashed, pascaldashed, pascal, camel, straight` |
@@ -268,9 +269,9 @@ References:
 | `azurerm_network_security_group` | `nsga` | `resourceGroup` | `regional` | 1 | 80 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9-._]{0,78}[a-zA-Z0-9_]$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_network_security_group_rule` | `nsgr` | `parent` | `regional` | 1 | 80 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9-._]{0,78}[a-zA-Z0-9_]$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_network_security_rule` | `nsgr` | `parent` | `regional` | 1 | 80 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9-._]{0,78}[a-zA-Z0-9_]$` | `dashed, pascaldashed, pascal, camel, straight` |
-| `azurerm_network_watcher` | `nwaz` | `resourceGroup` | `regional` | 1 | 80 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9-._]{0,78}[a-zA-Z0-9_]$` | `dashed, pascaldashed, pascal, camel, straight` |
+| `azurerm_network_watcher` | `newa` | `resourceGroup` | `regional` | 1 | 80 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9-._]{0,78}[a-zA-Z0-9_]$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_nginx_deployment` | `ngin` | `resourceGroup` | `regional` | 1 | 30 | `true` | `false` | `^[a-zA-Z0-9]([a-zA-Z0-9-]{0,28}[a-zA-Z0-9])?$` | `dashed, pascaldashed, pascal, camel, straight` |
-| `azurerm_notification_hub` | `nhaz` | `parent` | `regional` | 1 | 260 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9-._]{0,259}$` | `dashed, pascaldashed, pascal, camel, straight` |
+| `azurerm_notification_hub` | `nohu` | `parent` | `regional` | 1 | 260 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9-._]{0,259}$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_notification_hub_authorization_rule` | `dnsr` | `parent` | `regional` | 1 | 256 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9-._]{0,255}$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_notification_hub_namespace` | `dnsr` | `global` | `non-regional` | 6 | 50 | `true` | `false` | `^[a-zA-Z][a-zA-Z0-9-]{4,48}[a-zA-Z0-9]$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_point_to_site_vpn_gateway` | `vpng` | `resourceGroup` | `regional` | 1 | 80 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9-._]{0,78}[a-zA-Z0-9_]$` | `dashed, pascaldashed, pascal, camel, straight` |
@@ -299,7 +300,7 @@ References:
 | `azurerm_private_dns_zone` | `pdns` | `resourceGroup` | `regional` | 1 | 63 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9-._]{0,61}[a-zA-Z0-9_]$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_private_dns_zone_group` | `pdns` | `resourceGroup` | `regional` | 1 | 80 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9\\-\\._]{0,78}[a-zA-Z0-9_]$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_private_dns_zone_virtual_network_link` | `pnet` | `parent` | `regional` | 1 | 80 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9-._]{0,78}[a-zA-Z0-9_]$` | `dashed, pascaldashed, pascal, camel, straight` |
-| `azurerm_private_endpoint` | `peaz` | `resourceGroup` | `regional` | 2 | 64 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,62}[a-zA-Z0-9_]$` | `dashed, pascaldashed, pascal, camel, straight` |
+| `azurerm_private_endpoint` | `pren` | `resourceGroup` | `regional` | 2 | 64 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,62}[a-zA-Z0-9_]$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_private_link_service` | `plsa` | `resourceGroup` | `regional` | 1 | 80 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9\\-\\._]{0,78}[a-zA-Z0-9_]$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_private_service_connection` | `psca` | `resourceGroup` | `regional` | 1 | 80 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9\\-\\._]{0,78}[a-zA-Z0-9_]$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_proximity_placement_group` | `ppga` | `resourceGroup` | `regional` | 1 | 80 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9\\-\\._]{0,78}[a-zA-Z0-9_]$` | `dashed, pascaldashed, pascal, camel, straight` |
@@ -314,16 +315,16 @@ References:
 | `azurerm_redis_firewall_rule` | `redi` | `parent` | `regional` | 1 | 256 | `false` | `false` | `^[a-zA-Z0-9]{1,256}$` | `pascal, camel, straight` |
 | `azurerm_relay_hybrid_connection` | `rlhc` | `parent` | `regional` | 1 | 260 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9-._]{0,258}[a-zA-Z0-9]$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_relay_namespace` | `rlna` | `global` | `non-regional` | 6 | 50 | `true` | `false` | `^[a-zA-Z][a-zA-Z0-9-]{4,48}[a-zA-Z0-9]$` | `dashed, pascaldashed, pascal, camel, straight` |
-| `azurerm_resource_group` | `rgaz` | `subscription` | `non-regional` | 1 | 90 | `true` | `false` | `^[a-zA-Z0-9-._\\(\\)]{0,89}[a-zA-Z0-9-_\\(\\)]$` | `dashed, pascaldashed, pascal, camel, straight` |
+| `azurerm_resource_group` | `regr` | `subscription` | `non-regional` | 1 | 90 | `true` | `false` | `^[a-zA-Z0-9-._\\(\\)]{0,89}[a-zA-Z0-9-_\\(\\)]$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_resource_group_policy_assignment` | `argp` | `resourceGroup` | `regional` | 1 | 128 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9\\-\\._]{0,126}[a-zA-Z0-9_]$` | `dashed, pascaldashed, pascal, camel, straight` |
-| `azurerm_role_assignment` | `raaz` | `assignment` | `non-regional` | 1 | 64 | `true` | `false` | `^[^%]{0,63}[^ %.]$` | `dashed, pascaldashed, pascal, camel, straight` |
-| `azurerm_role_definition` | `rdaz` | `definition` | `non-regional` | 1 | 64 | `true` | `false` | `^[^%]{0,63}[^ %.]$` | `dashed, pascaldashed, pascal, camel, straight` |
-| `azurerm_route` | `rtaz` | `parent` | `regional` | 1 | 80 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9-._]{0,78}[a-zA-Z0-9_]$` | `dashed, pascaldashed, pascal, camel, straight` |
+| `azurerm_role_assignment` | `roas` | `assignment` | `non-regional` | 1 | 64 | `true` | `false` | `^[^%]{0,63}[^ %.]$` | `dashed, pascaldashed, pascal, camel, straight` |
+| `azurerm_role_definition` | `rode` | `definition` | `non-regional` | 1 | 64 | `true` | `false` | `^[^%]{0,63}[^ %.]$` | `dashed, pascaldashed, pascal, camel, straight` |
+| `azurerm_route` | `rout` | `parent` | `regional` | 1 | 80 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9-._]{0,78}[a-zA-Z0-9_]$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_route_server` | `rtsa` | `resourceGroup` | `regional` | 1 | 80 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9-._]{0,78}[a-zA-Z0-9_]$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_route_table` | `rout` | `resourceGroup` | `regional` | 1 | 80 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9-._]{0,78}[a-zA-Z0-9_]$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_search_service` | `srch` | `global` | `non-regional` | 2 | 60 | `true` | `true` | `^[a-z0-9](?:[a-z0-9-]{0,58}[a-z0-9])?$` | `dashed, straight` |
-| `azurerm_service_fabric_cluster` | `sfaz` | `region` | `regional` | 4 | 23 | `true` | `true` | `^[a-z][a-z0-9-]{2,21}[a-z0-9]$` | `dashed, straight` |
-| `azurerm_servicebus_namespace` | `sbaz` | `global` | `non-regional` | 6 | 50 | `true` | `false` | `^[a-zA-Z][a-zA-Z0-9-]{4,48}[a-zA-Z0-9]$` | `dashed, pascaldashed, pascal, camel, straight` |
+| `azurerm_service_fabric_cluster` | `facl` | `region` | `regional` | 4 | 23 | `true` | `true` | `^[a-z][a-z0-9-]{2,21}[a-z0-9]$` | `dashed, straight` |
+| `azurerm_servicebus_namespace` | `sena` | `global` | `non-regional` | 6 | 50 | `true` | `false` | `^[a-zA-Z][a-zA-Z0-9-]{4,48}[a-zA-Z0-9]$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_servicebus_namespace_authorization_rule` | `sbar` | `parent` | `regional` | 1 | 50 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9-._]{0,48}[a-zA-Z0-9]$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_servicebus_namespace_disaster_recovery_config` | `sbdr` | `parent` | `regional` | 1 | 50 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9-._]{0,48}[a-zA-Z0-9]$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_servicebus_queue` | `sbqa` | `parent` | `regional` | 1 | 260 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9-._]{0,258}[a-zA-Z0-9_]$` | `dashed, pascaldashed, pascal, camel, straight` |
@@ -332,7 +333,7 @@ References:
 | `azurerm_servicebus_subscription_rule` | `sbsr` | `parent` | `regional` | 1 | 50 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9-._]{0,48}[a-zA-Z0-9]$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_servicebus_topic` | `sbta` | `parent` | `regional` | 1 | 260 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9-._]{0,258}[a-zA-Z0-9]$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_servicebus_topic_authorization_rule` | `sbta` | `parent` | `regional` | 1 | 50 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9-._]{0,48}[a-zA-Z0-9]$` | `dashed, pascaldashed, pascal, camel, straight` |
-| `azurerm_shared_image` | `siaz` | `parent` | `regional` | 1 | 80 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9-_.]{0,78}[a-zA-Z0-9_]$` | `dashed, pascaldashed, pascal, camel, straight` |
+| `azurerm_shared_image` | `shim` | `parent` | `regional` | 1 | 80 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9-_.]{0,78}[a-zA-Z0-9_]$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_shared_image_gallery` | `siga` | `resourceGroup` | `regional` | 1 | 80 | `false` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9._]{0,78}[a-zA-Z0-9]$` | `pascal, camel, straight` |
 | `azurerm_signalr_service` | `sgnl` | `global` | `non-regional` | 3 | 63 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9]$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_snapshots` | `snap` | `parent` | `regional` | 1 | 80 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9-._]{0,78}[a-zA-Z0-9_]$` | `dashed, pascaldashed, pascal, camel, straight` |
@@ -341,7 +342,7 @@ References:
 | `azurerm_sql_firewall_rule` | `sqlf` | `parent` | `regional` | 1 | 128 | `true` | `false` | `^[^<>*%:?\\+\\/]{1,127}[^<>*%:.?\\+\\/]$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_sql_server` | `sqla` | `global` | `non-regional` | 1 | 63 | `true` | `true` | `^[a-z0-9][a-z0-9-]{0,61}[a-z0-9]$` | `dashed, straight` |
 | `azurerm_static_site` | `stap` | `resourceGroup` | `regional` | 1 | 40 | `true` | `false` | `^[a-zA-Z0-9-]{1,40}$` | `dashed, pascaldashed, pascal, camel, straight` |
-| `azurerm_storage_account` | `staz` | `global` | `non-regional` | 3 | 24 | `false` | `true` | `^[a-z0-9]{3,24}$` | `straight` |
+| `azurerm_storage_account` | `stac` | `global` | `non-regional` | 3 | 24 | `false` | `true` | `^[a-z0-9]{3,24}$` | `straight` |
 | `azurerm_storage_blob` | `blob` | `parent` | `regional` | 1 | 1024 | `true` | `false` | `^[^\\s\\/$#&]{1,1000}[^\\s\\/$#&]{0,24}$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_storage_container` | `stct` | `parent` | `regional` | 3 | 63 | `true` | `false` | `^[a-z0-9][a-z0-9-]{2,62}$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_storage_data_lake_gen2_filesystem` | `stdl` | `parent` | `regional` | 3 | 63 | `true` | `false` | `^[a-z0-9][a-z0-9-]{1,61}[a-z0-9]$` | `dashed, pascaldashed, pascal, camel, straight` |
@@ -384,26 +385,26 @@ References:
 | `azurerm_virtual_desktop_workspace` | `wvdw` | `resourceGroup` | `regional` | 1 | 260 | `true` | `false` | `^[a-zA-Z0-9 ][a-zA-Z0-9-._ ]{0,258}[a-zA-Z0-9_]$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_virtual_hub` | `vhub` | `parent` | `regional` | 1 | 50 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9-._]{0,48}[a-zA-Z0-9_]$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_virtual_hub_connection` | `vhco` | `parent` | `regional` | 1 | 80 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9-._]{0,78}[a-zA-Z0-9_]$` | `dashed, pascaldashed, pascal, camel, straight` |
-| `azurerm_virtual_machine` | `vmaz` | `resourceGroup` | `regional` | 1 | 15 | `true` | `false` | `^[^\\/\"\\[\\]:\|<>+=;,?*@&_][^\\/\"\\[\\]:\|<>+=;,?*@&]{0,13}[^\\/\"\\[\\]:\|<>+=;,?*@&.-]$` | `dashed, pascaldashed, pascal, camel, straight` |
+| `azurerm_virtual_machine` | `vima` | `resourceGroup` | `regional` | 1 | 15 | `true` | `false` | `^[^\\/\"\\[\\]:|<>+=;,?*@&_][^\\/\"\\[\\]:|<>+=;,?*@&]{0,13}[^\\/\"\\[\\]:|<>+=;,?*@&.-]$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_virtual_machine_extension` | `vmxa` | `parent` | `regional` | 1 | 80 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9\\-\\._]{0,78}[a-zA-Z0-9_]$` | `dashed, pascaldashed, pascal, camel, straight` |
-| `azurerm_virtual_machine_portal_name` | `vmaz` | `resourceGroup` | `regional` | 1 | 64 | `true` | `false` | `^[^\\/\"\\[\\]:\|<>+=;,?*@&_][^\\/\"\\[\\]:\|<>+=;,?*@&]{0,62}[^\\/\"\\[\\]:\|<>+=;,?*@&.-]$` | `dashed, pascaldashed, pascal, camel, straight` |
-| `azurerm_virtual_machine_scale_set` | `vmss` | `resourceGroup` | `regional` | 1 | 15 | `true` | `false` | `^[^\\/\"\\[\\]:\|<>+=;,?*@&_][^\\/\"\\[\\]:\|<>+=;,?*@&]{0,13}[^\\/\"\\[\\]:\|<>+=;,?*@&.-]$` | `dashed, pascaldashed, pascal, camel, straight` |
+| `azurerm_virtual_machine_portal_name` | `pona` | `resourceGroup` | `regional` | 1 | 64 | `true` | `false` | `^[^\\/\"\\[\\]:|<>+=;,?*@&_][^\\/\"\\[\\]:|<>+=;,?*@&]{0,62}[^\\/\"\\[\\]:|<>+=;,?*@&.-]$` | `dashed, pascaldashed, pascal, camel, straight` |
+| `azurerm_virtual_machine_scale_set` | `vmss` | `resourceGroup` | `regional` | 1 | 15 | `true` | `false` | `^[^\\/\"\\[\\]:|<>+=;,?*@&_][^\\/\"\\[\\]:|<>+=;,?*@&]{0,13}[^\\/\"\\[\\]:|<>+=;,?*@&.-]$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_virtual_machine_scale_set_extension` | `vmss` | `parent` | `regional` | 1 | 80 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9\\-\\._]{0,78}[a-zA-Z0-9_]$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_virtual_network` | `vnet` | `resourceGroup` | `regional` | 2 | 64 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9-._]{0,62}[a-zA-Z0-9_]$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_virtual_network_gateway` | `vgwa` | `resourceGroup` | `regional` | 1 | 80 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9-._]{0,78}[a-zA-Z0-9_]$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_virtual_network_peering` | `vpee` | `parent` | `regional` | 1 | 80 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9-._]{0,78}[a-zA-Z0-9_]$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_virtual_wan` | `vwan` | `parent` | `regional` | 1 | 80 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9-._]{0,78}[a-zA-Z0-9_]$` | `dashed, pascaldashed, pascal, camel, straight` |
-| `azurerm_vm_windows_computer_name_prefix` | `cnaz` | `resourceGroup` | `regional` | 1 | 9 | `true` | `false` | `^[^\\/\"\\[\\]:\|<>+=;,?*@&_][^\\/\"\\[\\]:\|<>+=;,?*@&]{0,7}[^\\/\"\\[\\]:\|<>+=;,?*@&.-]$` | `dashed, pascaldashed, pascal, camel, straight` |
+| `azurerm_vm_windows_computer_name_prefix` | `napr` | `resourceGroup` | `regional` | 1 | 9 | `true` | `false` | `^[^\\/\"\\[\\]:|<>+=;,?*@&_][^\\/\"\\[\\]:|<>+=;,?*@&]{0,7}[^\\/\"\\[\\]:|<>+=;,?*@&.-]$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_vmware_cluster` | `vwca` | `resourceGroup` | `regional` | 1 | 80 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9-_.]{0,78}[a-zA-Z0-9_]$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_vmware_express_route_authorization` | `vwer` | `resourceGroup` | `regional` | 1 | 80 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9-_.]{0,78}[a-zA-Z0-9_]$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_vmware_private_cloud` | `vwpc` | `resourceGroup` | `regional` | 1 | 80 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9-_.]{0,78}[a-zA-Z0-9_]$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_vpn_gateway_connection` | `vcna` | `parent` | `regional` | 1 | 80 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9-._]{0,78}[a-zA-Z0-9_]$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_vpn_site` | `vsta` | `parent` | `regional` | 1 | 80 | `true` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9-._]{0,78}[a-zA-Z0-9_]$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_web_application_firewall_policy` | `wafw` | `global` | `non-regional` | 1 | 80 | `false` | `false` | `^[a-zA-Z0-9][a-zA-Z0-9]{0,78}[a-zA-Z0-9]$` | `pascal, camel, straight` |
-| `azurerm_web_pubsub` | `psaz` | `resourceGroup` | `regional` | 3 | 63 | `true` | `false` | `^[a-zA-Z][-a-zA-Z0-9]{1,61}[a-zA-Z0-9]$` | `dashed, pascaldashed, pascal, camel, straight` |
+| `azurerm_web_pubsub` | `wepu` | `resourceGroup` | `regional` | 3 | 63 | `true` | `false` | `^[a-zA-Z][-a-zA-Z0-9]{1,61}[a-zA-Z0-9]$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_web_pubsub_hub` | `pshu` | `parent` | `regional` | 1 | 128 | `false` | `false` | `^[a-zA-Z][a-zA-Z0-9_`,.\\[\\]]{0,127}$` | `pascal, camel, straight` |
-| `azurerm_windows_virtual_machine` | `vmaz` | `resourceGroup` | `regional` | 1 | 15 | `true` | `false` | `^[^\\/\"\\[\\]:\|<>+=;,?*@&_][^\\/\"\\[\\]:\|<>+=;,?*@&]{0,13}[^\\/\"\\[\\]:\|<>+=;,?*@&.-]$` | `dashed, pascaldashed, pascal, camel, straight` |
-| `azurerm_windows_virtual_machine_scale_set` | `vmss` | `resourceGroup` | `regional` | 1 | 15 | `true` | `false` | `^[^\\/\"\\[\\]:\|<>+=;,?*@&_][^\\/\"\\[\\]:\|<>+=;,?*@&]{0,13}[^\\/\"\\[\\]:\|<>+=;,?*@&.-]$` | `dashed, pascaldashed, pascal, camel, straight` |
+| `azurerm_windows_virtual_machine` | `vima` | `resourceGroup` | `regional` | 1 | 15 | `true` | `false` | `^[^\\/\"\\[\\]:|<>+=;,?*@&_][^\\/\"\\[\\]:|<>+=;,?*@&]{0,13}[^\\/\"\\[\\]:|<>+=;,?*@&.-]$` | `dashed, pascaldashed, pascal, camel, straight` |
+| `azurerm_windows_virtual_machine_scale_set` | `vmss` | `resourceGroup` | `regional` | 1 | 15 | `true` | `false` | `^[^\\/\"\\[\\]:|<>+=;,?*@&_][^\\/\"\\[\\]:|<>+=;,?*@&]{0,13}[^\\/\"\\[\\]:|<>+=;,?*@&.-]$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `azurerm_windows_web_app` | `wwap` | `global` | `non-regional` | 2 | 60 | `true` | `false` | `^[0-9A-Za-z][0-9A-Za-z-]{0,58}[0-9a-zA-Z]$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `databricks_cluster` | `dbcd` | `parent` | `regional` | 3 | 30 | `true` | `false` | `^[a-zA-Z0-9-_]{3,30}$` | `dashed, pascaldashed, pascal, camel, straight` |
 | `databricks_high_concurrency_cluster` | `dbhc` | `parent` | `regional` | 3 | 30 | `true` | `false` | `^[a-zA-Z0-9-_]{3,30}$` | `dashed, pascaldashed, pascal, camel, straight` |
