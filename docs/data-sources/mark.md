@@ -210,7 +210,7 @@ output "azure_storage_account_style" {
 
 ## Style Priority Resolution
 
-The data source selects the first valid style from `style_priority` (request-specific) or the provider `style_priority` when none is supplied. If `resource_style_overrides` defines an allowed style list for the current `what`, only those styles are considered. If no style matches, the provider falls back to `dashed`.
+The data source selects the first valid style from `style_priority` (request-specific) or the provider `style_priority` when none is supplied. If `resource_style_overrides` defines an allowed style list for the current `what`, only those styles are considered. If no style matches, Sigil falls back to the first allowed style for that resource, or `dashed` when no style override exists.
 
 Cloud-specific style overrides are applied automatically:
 - `aws`: `s3` and `s3_bucket` are restricted to `dashed` and `straight`.

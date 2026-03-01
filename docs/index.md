@@ -9,7 +9,7 @@ terraform {
   required_providers {
     sigil = {
       source  = "jesinity/sigil"
-      version = "0.2.0"
+      version = "1.1.0"
     }
   }
 }
@@ -438,7 +438,7 @@ Style behaviors:
 - `pascaldashed` Words in `Pascal-Case` joined by `-`.
 - `camel` Words in `camelCase`.
 
-Words are extracted from each component using the pattern `[A-Za-z0-9]+`, so punctuation or separators become word boundaries. If no valid style matches the priority list and any resource overrides, the provider falls back to `dashed`.
+Words are extracted from each component using the pattern `[A-Za-z0-9]+`, so punctuation or separators become word boundaries. If no valid style matches, Sigil falls back to the first allowed style from `resource_style_overrides` for that resource, or `dashed` when no style override exists.
 
 Cloud-specific style overrides are applied automatically:
 - `aws`: `s3` and `s3_bucket` are restricted to `dashed` and `straight`.

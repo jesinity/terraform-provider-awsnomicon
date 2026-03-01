@@ -130,3 +130,36 @@ func TestBuildNameAzureRegionLookupNormalizesSeparators(t *testing.T) {
 		t.Fatalf("expected generated name %q, got %q", "weu", result.Name)
 	}
 }
+
+func TestBuildNameAzureFallsBackToAllowedStyleWhenPriorityDoesNotMatch(t *testing.T) {
+	defaults, err := DefaultCloudDefaults(CloudAzure)
+	if err != nil {
+		t.Fatalf("unexpected error loading Azure defaults: %v", err)
+	}
+
+	result, err := BuildName(Config{
+		Cloud:                            CloudAzure,
+		OrgPrefix:                        "acme",
+		Project:                          "payments",
+		Env:                              "prod",
+		Region:                           "westeurope",
+		RegionMap:                        defaults.RegionMap,
+		IgnoreRegionForRegionalResources: false,
+		StylePriority:                    []string{StylePascal}, // not allowed for storage accounts
+		ResourceAcronyms:                 defaults.ResourceAcronyms,
+		ResourceStyleOverrides:           defaults.ResourceStyleOverrides,
+		ResourceConstraints:              defaults.ResourceConstraints,
+		RegionalResources:                defaults.RegionalResources,
+	}, BuildInput{
+		Resource:  "azurerm_storage_account",
+		Qualifier: "raw",
+		Recipe:    []string{"org", "proj", "env", "resource", "qualifier"},
+	})
+	if err != nil {
+		t.Fatalf("unexpected build error: %v", err)
+	}
+
+	if result.Style != StyleStraight {
+		t.Fatalf("expected fallback style %q, got %q", StyleStraight, result.Style)
+	}
+}

@@ -204,7 +204,12 @@ func BuildName(cfg Config, in BuildInput) (BuildResult, error) {
 		break
 	}
 	if chosenStyle == "" {
-		chosenStyle = StyleDashed
+		if len(allowedStyles) > 0 {
+			chosenStyle = firstValidStyle(allowedStyles)
+		}
+		if chosenStyle == "" {
+			chosenStyle = StyleDashed
+		}
 	}
 
 	name, err := formatName(chosenStyle, parts)
@@ -471,6 +476,15 @@ func containsString(list []string, value string) bool {
 		}
 	}
 	return false
+}
+
+func firstValidStyle(styles []string) string {
+	for _, style := range styles {
+		if isValidStyle(style) {
+			return style
+		}
+	}
+	return ""
 }
 
 func lookupRegionCode(regionMap map[string]string, region string) string {
