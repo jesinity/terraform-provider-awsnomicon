@@ -6,6 +6,7 @@ import (
 	"net"
 	"regexp"
 	"strings"
+	"unicode"
 )
 
 const (
@@ -102,7 +103,7 @@ func BuildName(cfg Config, in BuildInput) (BuildResult, error) {
 	regionCode := strings.TrimSpace(effective.RegionShortCode)
 	region := strings.TrimSpace(effective.Region)
 	if regionCode == "" && region != "" {
-		regionCode = strings.TrimSpace(effective.RegionMap[region])
+		regionCode = lookupRegionCode(effective.RegionMap, region)
 		if regionCode == "" {
 			regionCode = region
 		}
@@ -470,4 +471,50 @@ func containsString(list []string, value string) bool {
 		}
 	}
 	return false
+}
+
+func lookupRegionCode(regionMap map[string]string, region string) string {
+	region = strings.TrimSpace(region)
+	if region == "" || len(regionMap) == 0 {
+		return ""
+	}
+
+	if code := strings.TrimSpace(regionMap[region]); code != "" {
+		return code
+	}
+	if lower := strings.ToLower(region); lower != region {
+		if code := strings.TrimSpace(regionMap[lower]); code != "" {
+			return code
+		}
+	}
+
+	target := normalizeRegionKey(region)
+	if target == "" {
+		return ""
+	}
+	for key, code := range regionMap {
+		if normalizeRegionKey(key) == target {
+			if trimmed := strings.TrimSpace(code); trimmed != "" {
+				return trimmed
+			}
+		}
+	}
+
+	return ""
+}
+
+func normalizeRegionKey(value string) string {
+	value = strings.TrimSpace(value)
+	if value == "" {
+		return ""
+	}
+
+	var b strings.Builder
+	b.Grow(len(value))
+	for _, r := range value {
+		if unicode.IsLetter(r) || unicode.IsDigit(r) {
+			b.WriteRune(unicode.ToLower(r))
+		}
+	}
+	return b.String()
 }

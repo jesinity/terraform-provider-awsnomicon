@@ -83,7 +83,15 @@ provider "sigil" {
   org_prefix = "acme"
   project    = "payments"
   env        = "prod"
-  region     = "eastus2"
+  region     = "westeurope"
+
+  # Azure defaults include a built-in region short code map.
+  # Example: westeurope -> weu, eastus2 -> eus2.
+  # Optional: override if your org uses different codes.
+  # region_overrides = {
+  #   westeurope = "weu"
+  #   eastus2    = "eus2"
+  # }
 
   # Optional Azure-specific overrides
   # resource_acronyms = {

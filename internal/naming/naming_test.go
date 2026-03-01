@@ -8,6 +8,10 @@ func TestDefaultCloudDefaultsAzure(t *testing.T) {
 		t.Fatalf("unexpected error loading Azure defaults: %v", err)
 	}
 
+	if len(defaults.RegionMap) == 0 {
+		t.Fatal("expected Azure region map defaults to be populated")
+	}
+
 	if len(defaults.ResourceAcronyms) < 300 {
 		t.Fatalf("expected Azure CAF acronyms to be populated, got %d entries", len(defaults.ResourceAcronyms))
 	}
@@ -57,6 +61,13 @@ func TestDefaultCloudDefaultsAzure(t *testing.T) {
 	if _, ok := defaults.ResourceAcronyms["general"]; ok {
 		t.Fatalf("expected no acronym entry for %q because CAF slug is empty", "general")
 	}
+
+	if got := defaults.RegionMap["westeurope"]; got != "weu" {
+		t.Fatalf("expected Azure region short code %q for westeurope, got %q", "weu", got)
+	}
+	if got := defaults.RegionMap["eastus2"]; got != "eus2" {
+		t.Fatalf("expected Azure region short code %q for eastus2, got %q", "eus2", got)
+	}
 }
 
 func TestBuildNameAzureStorageAccountSelectsStraightStyle(t *testing.T) {
@@ -86,5 +97,36 @@ func TestBuildNameAzureStorageAccountSelectsStraightStyle(t *testing.T) {
 
 	if result.Name == "" {
 		t.Fatal("expected a generated name")
+	}
+}
+
+func TestBuildNameAzureRegionLookupNormalizesSeparators(t *testing.T) {
+	defaults, err := DefaultCloudDefaults(CloudAzure)
+	if err != nil {
+		t.Fatalf("unexpected error loading Azure defaults: %v", err)
+	}
+
+	result, err := BuildName(Config{
+		Cloud:                            CloudAzure,
+		Region:                           "west-europe",
+		RegionMap:                        defaults.RegionMap,
+		IgnoreRegionForRegionalResources: false,
+		ResourceAcronyms:                 defaults.ResourceAcronyms,
+		ResourceStyleOverrides:           defaults.ResourceStyleOverrides,
+		ResourceConstraints:              defaults.ResourceConstraints,
+		RegionalResources:                defaults.RegionalResources,
+	}, BuildInput{
+		Resource: "azurerm_storage_account",
+		Recipe:   []string{"region"},
+	})
+	if err != nil {
+		t.Fatalf("unexpected build error: %v", err)
+	}
+
+	if result.RegionCode != "weu" {
+		t.Fatalf("expected region code %q, got %q", "weu", result.RegionCode)
+	}
+	if result.Name != "weu" {
+		t.Fatalf("expected generated name %q, got %q", "weu", result.Name)
 	}
 }

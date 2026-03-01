@@ -83,7 +83,15 @@ provider "sigil" {
   org_prefix = "acme"
   project    = "payments"
   env        = "prod"
-  region     = "eastus2"
+  region     = "westeurope"
+
+  # Azure defaults include a built-in region short code map.
+  # Example: westeurope -> weu, eastus2 -> eus2.
+  # Optional: override if your org uses different codes.
+  # region_overrides = {
+  #   westeurope = "weu"
+  #   eastus2    = "eus2"
+  # }
 
   # Optional Azure-specific overrides
   # resource_acronyms = {
@@ -491,4 +499,4 @@ If both `region_map` and `region_overrides` are set, overrides are applied to th
 
 When `ignore_region_for_regional_resources` is `true`, the region component is omitted for resources marked as regional unless explicitly overridden.
 
-`cloud = "azure"` loads full Azure CAF resource defaults (acronyms, style rules, and regex constraints) from `resourceDefinition.json`.
+`cloud = "azure"` loads Azure CAF resource defaults (acronyms, style rules, and regex constraints) from `resourceDefinition.json`, plus a built-in Azure region short code map.

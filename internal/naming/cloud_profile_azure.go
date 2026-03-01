@@ -76,7 +76,7 @@ func loadAzureCloudDefaults() (CloudDefaults, error) {
 	}
 
 	return CloudDefaults{
-		RegionMap:              map[string]string{},
+		RegionMap:              DefaultAzureRegionMap(),
 		ResourceAcronyms:       acronyms,
 		ResourceStyleOverrides: styleOverrides,
 		ResourceConstraints:    constraints,

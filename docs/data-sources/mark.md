@@ -10,6 +10,65 @@ Behavior is cloud-aware:
 
 ## Example Usage
 
+### Azure Bootstrap Snippet
+
+Use this as a starter for a new Azure project that uses Sigil for naming:
+
+```hcl
+terraform {
+  required_providers {
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = "~> 4.0"
+    }
+
+    sigil = {
+      source  = "jesinity/sigil"
+      version = "1.0.0"
+    }
+  }
+}
+
+provider "azurerm" {
+  features {}
+}
+
+provider "sigil" {
+  cloud      = "azure"
+  org_prefix = "acme"
+  project    = "payments"
+  env        = "dev"
+  region     = "westeurope"
+  # Uses built-in Azure region short code mapping: westeurope -> weu.
+}
+
+data "sigil_mark" "rg" {
+  what      = "azurerm_resource_group"
+  qualifier = "core"
+}
+
+data "sigil_mark" "storage" {
+  what      = "azurerm_storage_account"
+  qualifier = "raw"
+
+  # Storage accounts are lowercase + no separators in CAF defaults.
+  recipe = ["org", "proj", "env", "resource", "qualifier"]
+}
+
+resource "azurerm_resource_group" "this" {
+  name     = data.sigil_mark.rg.name
+  location = "West Europe"
+}
+
+resource "azurerm_storage_account" "this" {
+  name                     = data.sigil_mark.storage.name
+  resource_group_name      = azurerm_resource_group.this.name
+  location                 = azurerm_resource_group.this.location
+  account_tier             = "Standard"
+  account_replication_type = "LRS"
+}
+```
+
 These examples assume `ignore_region_for_regional_resources = false`. If you keep the default `true` and the resource is marked `regional`, the region segment and `region_code` will be omitted.
 
 ```hcl
